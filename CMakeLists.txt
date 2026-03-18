@@ -14,4 +14,5 @@ add_executable(algorithms-and-data-structures main.cpp
         timkoffy/graph_adjmatrix.h
         timkoffy/linked_list.h
         timkoffy/hashmap_linkedlist.h
-        timkoffy/calc_dextra.h)
+        timkoffy/calc_dextra.h
+        timkoffy/array.h)
