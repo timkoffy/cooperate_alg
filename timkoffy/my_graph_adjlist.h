@@ -56,6 +56,17 @@ namespace MyGraphAdjList {
         }
     }
 
+    int tryAddUndirectedEdge(Graph* g, int u, int v, int weight) {
+        int r1 = tryAddEdge(g, u, v, weight);
+        int r2 = tryAddEdge(g, v, u, weight);
+        return r1 && r2;
+    }
+
+    void removeUndirectedEdge(Graph* g, int u, int v) {
+        removeEdge(g, u, v);
+        removeEdge(g, v, u);
+    }
+
     void printGraph(Graph* g) {
         for (int i = 0; i < g->vertCount; i++) {
             printf("%d -> ", i);
