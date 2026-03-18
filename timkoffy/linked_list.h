@@ -88,21 +88,26 @@ namespace MyLinkedList {
     }
 
     int tryRemoveLastList(List *list) {
-        // проверка на наличие списка
-        if (list == nullptr) {
-            return 0;
-        }
+        if (list == nullptr) return 0;
         Item *ptr = list->first;
+
+        // если только один элемент
+        if (list->first == list->last) {
+            free(list->first->data);
+            free(list->first);
+            list->first = nullptr;
+            list->last = nullptr;
+            return 1;
+        }
 
         // проходим до предпоследнего элемента
         while (ptr->next != list->last) {
             ptr = ptr->next;
         }
-        // делаем предпоследний последним
-        ptr->next = nullptr;
 
-        // очищаем последний элемент + обновляем указатель на последний
+        free(list->last->data);
         free(list->last);
+        ptr->next = nullptr;
         list->last = ptr;
         return 1;
     }
