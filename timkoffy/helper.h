@@ -32,4 +32,18 @@ namespace Helper {
         }
         return equal;
     }
+
+    unsigned int hashCodeFirst(char *str, unsigned int seed) {
+        unsigned int hash = seed;
+        int i = 0;
+        while (str[i] != '\0') {
+            hash = (hash << 5) + hash + (unsigned int)(str[i]);
+            i++;
+        }
+        return hash;
+    }
+
+    unsigned int hashCodeFirst(char *str) {
+        return hashCodeFirst(str, 5381);
+    }
 }

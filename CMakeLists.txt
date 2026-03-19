@@ -16,4 +16,5 @@ add_executable(algorithms-and-data-structures main.cpp
         timkoffy/hashmap_linkedlist.h
         timkoffy/calc_dextra.h
         timkoffy/array.h
-        timkoffy/eulerPath.h)
+        timkoffy/eulerPath.h
+        timkoffy/bloomFilter.h)

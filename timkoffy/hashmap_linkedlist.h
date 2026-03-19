@@ -40,16 +40,6 @@ namespace MyHashMapLinkedList {
         return hashMap;
     }
 
-    unsigned int hashCodeFirst(char *str) {
-        unsigned int hash = 5381;
-        int i = 0;
-        while (str[i] != '\0') {
-            hash = (hash << 5) + hash + (unsigned int)(str[i]);
-            i++;
-        }
-        return hash;
-    }
-
     Entry *findEntryInList(List *bucket, char *key) {
         Item *cur = bucket->first;
         while (cur != nullptr) {
@@ -96,7 +86,7 @@ namespace MyHashMapLinkedList {
             while (cur != nullptr) {
                 Entry *entry = (Entry*)cur->data;
 
-                unsigned int hash = hashCodeFirst(entry->key);
+                unsigned int hash = Helper::hashCodeFirst(entry->key);
                 int newIndex = hash % newCapacity;
 
                 List *newBucket = hm->bucketArray[newIndex];
@@ -119,7 +109,7 @@ namespace MyHashMapLinkedList {
             resizeCapacity(hm, hm->capacity * 2);
         }
 
-        unsigned int hash = hashCodeFirst(key);
+        unsigned int hash = Helper::hashCodeFirst(key);
         int index = hash % hm->capacity;
 
         List *bucket = hm->bucketArray[index];
@@ -153,7 +143,7 @@ namespace MyHashMapLinkedList {
     int containsKey(HashMap *hm, char *key) {
         if (hm == nullptr || key == nullptr) return 0;
 
-        unsigned int hash = hashCodeFirst(key);
+        unsigned int hash = Helper::hashCodeFirst(key);
         int index = hash % hm->capacity;
 
         List *bucket = hm->bucketArray[index];
@@ -168,7 +158,7 @@ namespace MyHashMapLinkedList {
     int* getFromHashMap(HashMap *hm, char *key) {
         if (hm == nullptr || key == nullptr) return nullptr;
 
-        unsigned int hash = hashCodeFirst(key);
+        unsigned int hash = Helper::hashCodeFirst(key);
         int index = hash % hm->capacity;
 
         List *bucket = hm->bucketArray[index];
@@ -185,7 +175,7 @@ namespace MyHashMapLinkedList {
     int tryRemoveFromHashMap(HashMap *hm, char *key) {
         if (hm == nullptr || key == nullptr) return 0;
 
-        unsigned int hash = hashCodeFirst(key);
+        unsigned int hash = Helper::hashCodeFirst(key);
         int index = hash % hm->capacity;
 
         List *bucket = hm->bucketArray[index];
