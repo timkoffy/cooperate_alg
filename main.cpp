@@ -1,32 +1,50 @@
 #include "timkoffy/hashmap_linkedlist.h"
 
-using namespace MyHashMapLinkedList;
+#include "timkoffy/bloomFilter.h"
+
+using namespace MyBloomFilter;
 
 int main() {
-    HashMap *hm = createHashMap(5);
+    BloomFilter *bf = createBloomFilter(1000);  // 1000 бит
 
-    addToHashMap(hm, "vova", 0);
-    addToHashMap(hm, "petya", 1);
-    addToHashMap(hm, "masha", 2);
-    addToHashMap(hm, "dima", 3);
-    addToHashMap(hm, "olga", 4);
-    addToHashMap(hm, "sasha", 5);
-    addToHashMap(hm, "katya", 6);
-    addToHashMap(hm, "igor", 7);
-    addToHashMap(hm, "anna", 8);
-    addToHashMap(hm, "nastya", 9);
-    addToHashMap(hm, "vofdva", 10);
+    addToBloomFilter(bf, "vova");
+    addToBloomFilter(bf, "petya");
+    addToBloomFilter(bf, "masha");
 
-    printf("%d\n", containsKey(hm, "vofdva"));
+    printf("vova: %d\n", containsBloomFilter(bf, "vova"));
+    printf("dima: %d\n", containsBloomFilter(bf, "dima"));
 
-    printHashMap(hm);
+    freeBloomFilter(bf);
+    return 0;
 
-    printf("\n");
-    tryRemoveFromHashMap(hm, "masha");
 
-    printHashMap(hm);
 
-    freeHashMap(hm);
+    // HashMap *hm = createHashMap(5);
+    //
+    // addToHashMap(hm, "vova", 0);
+    // addToHashMap(hm, "petya", 1);
+    // addToHashMap(hm, "masha", 2);
+    // addToHashMap(hm, "dima", 3);
+    // addToHashMap(hm, "olga", 4);
+    // addToHashMap(hm, "sasha", 5);
+    // addToHashMap(hm, "katya", 6);
+    // addToHashMap(hm, "igor", 7);
+    // addToHashMap(hm, "anna", 8);
+    // addToHashMap(hm, "nastya", 9);
+    // addToHashMap(hm, "vofdva", 10);
+    //
+    // printf("%d\n", containsKey(hm, "vofdva"));
+    //
+    // printHashMap(hm);
+    //
+    // printf("\n");
+    // tryRemoveFromHashMap(hm, "masha");
+    //
+    // printHashMap(hm);
+    //
+    // freeHashMap(hm);
+
+
 
     // Graph *g = createGraph(6);
     //
