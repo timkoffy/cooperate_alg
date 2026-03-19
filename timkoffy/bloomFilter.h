@@ -44,7 +44,7 @@ namespace MyBloomFilter {
         setBit(bf, index3);
     }
 
-    void containsBloomFilter(BloomFilter *bf, char *key) {
+    int containsBloomFilter(BloomFilter *bf, char *key) {
         unsigned int hash1 = Helper::hashCodeFirst(key, 5381);
         unsigned int hash2 = Helper::hashCodeFirst(key, 5381 + 101);
         unsigned int hash3 = Helper::hashCodeFirst(key, 5381 + 203);
