@@ -85,6 +85,7 @@ namespace MyHashMapLinkedList {
             hm->bucketArray[i] = createList(sizeof(Entry));
         }
 
+
         for (int i = 0; i < oldCapacity; i++) {
             List *oldList = oldBucketArray[i];
             Item *cur = oldList->first;
@@ -97,7 +98,7 @@ namespace MyHashMapLinkedList {
 
                 List *newBucket = hm->bucketArray[newIndex];
 
-                // вот тут
+                tryAppendList(newBucket, entry);
 
                 hm->count++;
 
@@ -220,5 +221,28 @@ namespace MyHashMapLinkedList {
             cur = cur->next;
         }
         return 0;
+    }
+
+    void printHashMap(HashMap *hm) {
+        if (hm == nullptr) {
+            return;
+        }
+
+        for (int i = 0; i < hm->capacity; i++) {
+            List *bucket = hm->bucketArray[i];
+
+            if (bucket == nullptr) return;
+
+            Item *cur = bucket->first;
+            while (cur != nullptr) {
+                Entry *entry = (Entry*)cur->data;
+                printf("%s: %d (лежит в %d)\n", entry->key, entry->value, i);
+                cur = cur->next;
+            }
+        }
+    }
+
+    void freeHashMap(HashMap *hm) {
+
     }
 }
