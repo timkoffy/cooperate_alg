@@ -3,6 +3,7 @@
 #include <cstdlib>
 
 #include "linked_list.h"
+#include "helper.h"
 
 using namespace MyLinkedList;
 
@@ -193,20 +194,14 @@ namespace MyHashMapLinkedList {
         while (cur != nullptr) {
             Entry *entry = (Entry*)cur->data;
 
-            int i = 0;
-            int equal = 1;
-            while (entry->key[i] != '\0' || key[i] != '\0') {
-                if (entry->key[i] != key[i]) {
-                    equal = 0;
-                    break;
-                }
-                i++;
-            }
+            int equal = Helper::cmpStr(entry->key, key);
 
             if (equal) {
                 if (prev == nullptr) {
+                    // если находим нужный сразу в начале бакета
                     bucket->first = cur->next;
                 } else {
+                    // если находим нужный в середине/конце бакета
                     prev->next = cur->next;
                 }
 
@@ -243,6 +238,21 @@ namespace MyHashMapLinkedList {
     }
 
     void freeHashMap(HashMap *hm) {
+        for (int i = 0; i < hm->capacity; i++) {
+            List *bucket = hm->bucketArray[i];
 
+            Item *cur = bucket->first;
+            while (cur != nullptr) {
+                Item *next = cur->next;
+                Entry *entry = (Entry*)cur->data;
+                free(entry->key);
+                free(entry);
+                free(cur);
+                cur = next;
+            }
+            free(bucket);
+        }
+        free(hm->bucketArray);
+        free(hm);
     }
 }

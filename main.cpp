@@ -9,17 +9,16 @@ int main() {
     addToHashMap(hm, "petya", 1);
     addToHashMap(hm, "masha", 2);
     addToHashMap(hm, "dima", 3);
-    addToHashMap(hm, "olya", 4);
+    addToHashMap(hm, "olga", 4);
     addToHashMap(hm, "sasha", 5);
     addToHashMap(hm, "katya", 6);
     addToHashMap(hm, "igor", 7);
     addToHashMap(hm, "anna", 8);
+    addToHashMap(hm, "nastya", 9);
 
-
-
+    printf("%d\n", containsKey(hm, "vofdva"));
 
     printHashMap(hm);
-
 
     freeHashMap(hm);
 

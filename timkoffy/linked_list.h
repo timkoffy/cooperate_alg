@@ -150,22 +150,22 @@ namespace MyLinkedList {
         printf("%d]", value);
     }
 
-    void freeList(List *list) {
-        if (list == nullptr) return;
-        Item *ptr = list->first;
-        // очищаем данные в каждом элементе списка + сам элемент
-        // проходимся до последнего элемента
-        printf("\n");
-        while (ptr != nullptr) {
-            Item *tmp = ptr->next;
-            printf("!");
-            if (ptr->data != nullptr) {
-                free(ptr->data);
-            }
-            free(ptr);
-            ptr = tmp;
-        }
-        printf("\n");
-        free(list);
-    }
+    // void freeList(List *list) {
+    //     if (list == nullptr) return;
+    //     Item *ptr = list->first;
+    //     // очищаем данные в каждом элементе списка + сам элемент
+    //     // проходимся до последнего элемента
+    //     printf("\n");
+    //     while (ptr != nullptr) {
+    //         Item *tmp = ptr->next;
+    //         printf("!");
+    //         if (ptr->data != nullptr) {
+    //             free(ptr->data);
+    //         }
+    //         free(ptr);
+    //         ptr = tmp;
+    //     }
+    //     printf("\n");
+    //     free(list);
+    // }
 }
