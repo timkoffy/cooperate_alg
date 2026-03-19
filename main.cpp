@@ -5,7 +5,7 @@
 using namespace MyBloomFilter;
 
 int main() {
-    BloomFilter *bf = createBloomFilter(1000);  // 1000 бит
+    BloomFilter *bf = createBloomFilter(1000);
 
     addToBloomFilter(bf, "vova");
     addToBloomFilter(bf, "petya");

@@ -24,9 +24,18 @@ namespace MyBloomFilter {
 
     BloomFilter *createBloomFilter(int sizeBit) {
         BloomFilter *bf = (BloomFilter*)malloc(sizeof(BloomFilter));
+        if (bf == nullptr) return nullptr;
         bf->sizeBit = sizeBit;
+        // 10 + 7 / 8 = 2
+        // 15 + 7 / 8 = 2
+        // 16 + 7 / 8 = 2
+        // 17 + 7 / 8 = 3
         bf->sizeByte = (sizeBit + 7) / 8;
         bf->byteArray = (unsigned char*)calloc(bf->sizeByte, sizeof(unsigned char));
+        if (bf->byteArray == nullptr) {
+            free(bf);
+            return nullptr;
+        }
         return bf;
     }
 
