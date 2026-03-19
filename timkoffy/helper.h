@@ -19,4 +19,17 @@ namespace Helper {
             return 1;
         return 0;
     }
+
+    int cmpStr(char *first, char *second) {
+        int i = 0;
+        int equal = 1;
+        while (first[i] != '\0' || second[i] != '\0') {
+            if (first[i] != second[i]) {
+                equal = 0;
+                break;
+            }
+            i++;
+        }
+        return equal;
+    }
 }

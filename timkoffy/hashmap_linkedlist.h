@@ -3,6 +3,7 @@
 #include <cstdlib>
 
 #include "linked_list.h"
+#include "helper.h"
 
 using namespace MyLinkedList;
 
@@ -72,10 +73,13 @@ namespace MyHashMapLinkedList {
         return nullptr;
     }
 
-    void increaseCapacity(HashMap *hm) {
+    void resizeCapacity(HashMap *hm, int newCapacity) {
         int oldCapacity = hm->capacity;
         List **oldBucketArray = hm->bucketArray;
-        int newCapacity = oldCapacity * 2;
+
+        if (newCapacity < 5) {
+            newCapacity = 5;
+        }
 
         hm->bucketArray = (List**)malloc(newCapacity * sizeof(List*));
         hm->capacity = newCapacity;
@@ -84,7 +88,6 @@ namespace MyHashMapLinkedList {
         for (int i = 0; i < newCapacity; i++) {
             hm->bucketArray[i] = createList(sizeof(Entry));
         }
-
 
         for (int i = 0; i < oldCapacity; i++) {
             List *oldList = oldBucketArray[i];
@@ -113,7 +116,7 @@ namespace MyHashMapLinkedList {
 
     void addToHashMap(HashMap *hm, char *key, int value) {
         if (hm->count + 1 == hm->capacity) {
-            increaseCapacity(hm);
+            resizeCapacity(hm, hm->capacity * 2);
         }
 
         unsigned int hash = hashCodeFirst(key);
@@ -193,20 +196,14 @@ namespace MyHashMapLinkedList {
         while (cur != nullptr) {
             Entry *entry = (Entry*)cur->data;
 
-            int i = 0;
-            int equal = 1;
-            while (entry->key[i] != '\0' || key[i] != '\0') {
-                if (entry->key[i] != key[i]) {
-                    equal = 0;
-                    break;
-                }
-                i++;
-            }
+            int equal = Helper::cmpStr(entry->key, key);
 
             if (equal) {
                 if (prev == nullptr) {
+                    // если находим нужный сразу в начале бакета
                     bucket->first = cur->next;
                 } else {
+                    // если находим нужный в середине/конце бакета
                     prev->next = cur->next;
                 }
 
@@ -214,6 +211,10 @@ namespace MyHashMapLinkedList {
                 free(entry);
                 free(cur);
                 hm->count--;
+
+                if (hm->count < hm->capacity / 2 && hm->capacity > 5) {
+                    resizeCapacity(hm, hm->capacity / 2);
+                }
 
                 return 1;
             }
@@ -243,6 +244,21 @@ namespace MyHashMapLinkedList {
     }
 
     void freeHashMap(HashMap *hm) {
+        for (int i = 0; i < hm->capacity; i++) {
+            List *bucket = hm->bucketArray[i];
 
+            Item *cur = bucket->first;
+            while (cur != nullptr) {
+                Item *next = cur->next;
+                Entry *entry = (Entry*)cur->data;
+                free(entry->key);
+                free(entry);
+                free(cur);
+                cur = next;
+            }
+            free(bucket);
+        }
+        free(hm->bucketArray);
+        free(hm);
     }
 }
