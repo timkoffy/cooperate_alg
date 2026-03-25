@@ -4,7 +4,7 @@
 
 #include <unordered_map>
 
-using namespace MyBloomFilter;
+using namespace MyHashMapLinkedList;
 
 // поиск колва уникальных подстрок в строке с использованием std::map; 1+ символ
 char *substring(char *str, int start, int end) {
@@ -18,14 +18,14 @@ char *substring(char *str, int start, int end) {
     return substr;
 }
 
-std::unordered_map<char*, int> countUniqueSubstrings(char *str) {
-    std::unordered_map<char*, int> map;
+HashMap *countUniqueSubstrings(char *str) {
+    HashMap *map = createHashMap(5);
     int i = 0;
     while (str[i] != '\0') {
         int j = 0;
         while (str[i + j] != '\0') {
             char *substr = substring(str, i, i + j);
-            map[substr] = 1;
+            addToHashMap(map, substr, 1);
             j++;
         }
         i++;
@@ -34,11 +34,9 @@ std::unordered_map<char*, int> countUniqueSubstrings(char *str) {
 }
 
 int main() {
-    char *str = "abab";
+    char *str = "ababc";
     auto map = countUniqueSubstrings(str);
-    for (auto [key, value] : map) {
-        printf("%s\n", key);
-    }
+    printHashMap(map);
 
     // HashMap *hm = createHashMap(5);
     //
