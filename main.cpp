@@ -2,22 +2,43 @@
 
 #include "timkoffy/bloomFilter.h"
 
+#include <unordered_map>
+
 using namespace MyBloomFilter;
 
+// поиск колва уникальных подстрок в строке с использованием std::map; 1+ символ
+char *substring(char *str, int start, int end) {
+    char *substr = (char*)malloc(end - start + 1);
+    int i = 0;
+    while (start + i < end + 1 && str[start + i] != '\0') {
+        substr[i] = str[start + i];
+        i++;
+    }
+    substr[i] = '\0';
+    return substr;
+}
+
+std::unordered_map<char*, int> countUniqueSubstrings(char *str) {
+    std::unordered_map<char*, int> map;
+    int i = 0;
+    while (str[i] != '\0') {
+        int j = 0;
+        while (str[i + j] != '\0') {
+            char *substr = substring(str, i, i + j);
+            map[substr] = 1;
+            j++;
+        }
+        i++;
+    }
+    return map;
+}
+
 int main() {
-    BloomFilter *bf = createBloomFilter(1000);
-
-    addToBloomFilter(bf, "vova");
-    addToBloomFilter(bf, "petya");
-    addToBloomFilter(bf, "masha");
-
-    printf("vova: %d\n", containsBloomFilter(bf, "vova"));
-    printf("dima: %d\n", containsBloomFilter(bf, "dima"));
-
-    freeBloomFilter(bf);
-    return 0;
-
-
+    char *str = "abab";
+    auto map = countUniqueSubstrings(str);
+    for (auto [key, value] : map) {
+        printf("%s\n", key);
+    }
 
     // HashMap *hm = createHashMap(5);
     //
