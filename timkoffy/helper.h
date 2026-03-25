@@ -19,4 +19,31 @@ namespace Helper {
             return 1;
         return 0;
     }
+
+    int cmpStr(char *first, char *second) {
+        int i = 0;
+        int equal = 1;
+        while (first[i] != '\0' || second[i] != '\0') {
+            if (first[i] != second[i]) {
+                equal = 0;
+                break;
+            }
+            i++;
+        }
+        return equal;
+    }
+
+    unsigned int hashCodeFirst(char *str, unsigned int seed) {
+        unsigned int hash = seed;
+        int i = 0;
+        while (str[i] != '\0') {
+            hash = (hash << 5) + hash + (unsigned int)(str[i]);
+            i++;
+        }
+        return hash;
+    }
+
+    unsigned int hashCodeFirst(char *str) {
+        return hashCodeFirst(str, 5381);
+    }
 }

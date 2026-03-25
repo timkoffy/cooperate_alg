@@ -1,137 +1,100 @@
 #pragma once
-#include <iostream>
 #include <cstring>
+#include <iostream>
 
 namespace MyQueue {
-    // Элемент очереди
-    typedef struct Node {
+    typedef struct Item {
         void* data;
-        struct Node* next;
-    } Node;
+        Item* next;
+    } Item;
 
-    // Структура очереди
     typedef struct {
-        Node* front;    // указатель на начало очереди
-        Node* rear;     // указатель на конец очереди
-        int count;      // количество элементов
-        int size_el;    // размер элемента
+        Item* first;
+        Item* end;
+        int count;
+        int sizeVar;
     } Queue;
 
-    // Создание очереди
-    Queue* createQueue(int size_el) {
-        if (size_el <= 0) return NULL;
+    Queue* createQueue(int sizeVar) {
+        if (sizeVar <= 0) return nullptr;
 
-        Queue* queue = (Queue*)malloc(sizeof(Queue));
-        if (queue == NULL) return NULL;
+        Queue* q = (Queue*)malloc(sizeof(Queue));
+        if (q == nullptr) return nullptr;
 
-        queue->front = NULL;
-        queue->rear = NULL;
-        queue->count = 0;
-        queue->size_el = size_el;
+        q->first = nullptr;
+        q->end = nullptr;
+        q->count = 0;
+        q->sizeVar = sizeVar;
 
-        return queue;
+        return q;
     }
 
-    // Добавление элемента в конец очереди
-    void enqueue(Queue* queue, void* value) {
-        if (queue == NULL || value == NULL) return;
+    void addQueue(Queue* q, void* src) {
+        if (q == nullptr || src == nullptr) return;
 
-        // Создаем новый узел
-        Node* newNode = (Node*)malloc(sizeof(Node));
-        if (newNode == NULL) return;
+        Item* item = (Item*)malloc(sizeof(Item));
+        if (item == nullptr) return;
 
-        // Выделяем память под данные
-        newNode->data = malloc(queue->size_el);
-        if (newNode->data == NULL) {
-            free(newNode);
+        item->data = malloc(q->sizeVar);
+        if (item->data == nullptr) {
+            free(item);
             return;
         }
 
-        // Копируем данные
-        memcpy(newNode->data, value, queue->size_el);
-        newNode->next = NULL;
+        memcpy(item->data, src, q->sizeVar);
+        item->next = nullptr;
 
-        // Если очередь пуста, новый элемент становится и началом и концом
-        if (queue->rear == NULL) {
-            queue->front = newNode;
-            queue->rear = newNode;
-        } else {
-            // Иначе добавляем в конец
-            queue->rear->next = newNode;
-            queue->rear = newNode;
+        q->count++;
+
+        if (q->end == nullptr) {
+            q->first = item;
+            q->end = item;
+            return;
         }
 
-        queue->count++;
+        q->end->next = item;
+        q->end = item;
     }
 
-    int peekQueue(Queue* queue, void* out) {
-        if (queue == NULL || queue->front == NULL || out == NULL) return 0;
+    int peekQueue(Queue* q, void* dest) {
+        if (q == nullptr || q->first == nullptr || dest == nullptr) return 0;
 
-        memcpy(out, queue->front->data, queue->size_el);
+        memcpy(dest, q->first->data, q->sizeVar);
         return 1;
     }
 
-    // Удаление элемента из начала очереди
-    int dequeue(Queue* queue, void* out) {
-        if (queue == NULL || queue->front == NULL) return 0;
+    int removeQueue(Queue* q, void* dest) {
+        if (q == nullptr || q->first == nullptr) return 0;
 
-        // Сохраняем данные, если нужен указатель на выход
-        if (out != NULL) {
-            memcpy(out, queue->front->data, queue->size_el);
+        if (dest != nullptr) {
+            memcpy(dest, q->first->data, q->sizeVar);
         }
 
-        // Сохраняем указатель на удаляемый узел
-        Node* temp = queue->front;
+        Item* tmp = q->first;
+        q->first = q->first->next;
 
-        // Перемещаем указатель front на следующий элемент
-        queue->front = queue->front->next;
-
-        // Если очередь стала пустой, обнуляем и rear
-        if (queue->front == NULL) {
-            queue->rear = NULL;
+        if (q->first == nullptr) {
+            q->end = nullptr;
         }
 
-        // Освобождаем память
-        free(temp->data);
-        free(temp);
+        free(tmp->data);
+        free(tmp);
 
-        queue->count--;
+        q->count--;
         return 1;
     }
 
-    // Получение количества элементов в очереди
-    int lenQueue(Queue* queue) {
-        if (queue == NULL) return 0;
-        return queue->count;
-    }
-
-    // Проверка, пуста ли очередь
-    int isEmptyQueue(Queue* queue) {
-        return (queue == NULL || queue->count == 0);
-    }
-
-    // Очистка очереди (удаление всех элементов)
-    void clearQueue(Queue* queue) {
-        if (queue == NULL) return;
-
-        Node* current = queue->front;
-        while (current != NULL) {
-            Node* temp = current;
-            current = current->next;
-            free(temp->data);
-            free(temp);
-        }
-
-        queue->front = NULL;
-        queue->rear = NULL;
-        queue->count = 0;
-    }
-
-    // Освобождение памяти очереди
-    void freeQueue(Queue* queue) {
-        if (queue) {
-            clearQueue(queue);
-            free(queue);
+    void freeQueue(Queue* q) {
+        if (q != nullptr) {
+            Item *ptr = q->first;
+            for (int i = 0; i < q->count; i++) {
+                Item *tmp = ptr->next;
+                free(ptr->data);
+                free(ptr);
+                ptr = tmp;
+                printf("!");
+            }
+            free(q);
         }
     }
 }

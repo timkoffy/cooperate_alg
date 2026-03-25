@@ -44,6 +44,29 @@ namespace MyGraphAdjList {
         return 1;
     }
 
+    void removeEdge(Graph* g, int from, int to) {
+        for (int i = 0; i < g->adjCount[from]; i++) {
+            if (g->adjArray[from][i].to == to) {
+                for (int j = i; j < g->adjCount[from]; j++) {
+                    g->adjArray[from][j].to = g->adjArray[from][j + 1].to;
+                }
+                g->adjCount[from]--;
+                break;
+            }
+        }
+    }
+
+    int tryAddUndirectedEdge(Graph* g, int u, int v, int weight) {
+        int r1 = tryAddEdge(g, u, v, weight);
+        int r2 = tryAddEdge(g, v, u, weight);
+        return r1 && r2;
+    }
+
+    void removeUndirectedEdge(Graph* g, int u, int v) {
+        removeEdge(g, u, v);
+        removeEdge(g, v, u);
+    }
+
     void printGraph(Graph* g) {
         for (int i = 0; i < g->vertCount; i++) {
             printf("%d -> ", i);
