@@ -76,7 +76,7 @@ namespace CalcDextra {
                     i++;
                 }
                 Item item = {DIGIT, digit};
-                enqueue(result, &item);
+                addQueue(result, &item);
                 continue;
             }
             if (expression[i] == '(') {
@@ -87,7 +87,7 @@ namespace CalcDextra {
                 Item cur;
                 popStack(s, &cur);
                 while (cur.type != OPEN) {
-                    enqueue(result, &cur);
+                    addQueue(result, &cur);
                     if (!popStack(s, &cur)) {
                         freeQueue(result);
                         freeStack(s);
@@ -106,7 +106,7 @@ namespace CalcDextra {
                     peekStack(s, &topItem);
                     if (isOperator(topItem.type) && isGreaterOrSameByPriority(topItem.type, expression[i])) {
                         popStack(s, &topItem);
-                        enqueue(result, &topItem);
+                        addQueue(result, &topItem);
                     } else break;
                 }
                 pushStack(s, &newItem);
@@ -120,7 +120,7 @@ namespace CalcDextra {
                 freeQueue(result);
                 printf("invalid expression\n");
                 return nullptr;
-            } enqueue(result, &item);
+            } addQueue(result, &item);
         } freeStack(s);
         return result;
     }

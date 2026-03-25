@@ -17,4 +17,5 @@ add_executable(algorithms-and-data-structures main.cpp
         timkoffy/calc_dextra.h
         timkoffy/array.h
         timkoffy/eulerPath.h
-        timkoffy/bloomFilter.h)
+        timkoffy/bloomFilter.h
+        timkoffy/tasks/count_substrings_with_hashmap.h)
