@@ -92,7 +92,6 @@ namespace MyQueue {
                 free(ptr->data);
                 free(ptr);
                 ptr = tmp;
-                printf("!");
             }
             free(q);
         }

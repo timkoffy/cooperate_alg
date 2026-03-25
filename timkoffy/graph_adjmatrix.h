@@ -2,6 +2,9 @@
 #include<stdio.h>
 #include<stdlib.h>
 
+#include "my_queue.h"
+#include "my_stack.h"
+
 namespace MyGraphAdjMatrix {
     typedef struct {
         int** matrix;
@@ -98,28 +101,33 @@ namespace MyGraphAdjMatrix {
         return 1;
     }
 
+    void printGraph(Graph *g);
+
     int tryDeleteVerticle(Graph *g, int vert) {
         if (vert < 0 || vert >= g->vertCount) {
             return 0;
         }
 
-        if (vert == g->vertCount - 1) {
-            // просто переносим внутри строк и реаллочим g->matrix
-        }
-
-        for (int i = vert; i < g->vertCount - 1; i++) {
-            g->matrix[i] = g->matrix[i + 1];
-            for (int j = 0; j < g->vertCount - 1; j++) {
+        for (int i = 0; i < g->vertCount; i++) {
+            for (int j = vert; j < g->vertCount - 1; j++) {
                 g->matrix[i][j] = g->matrix[i][j + 1];
             }
+            g->matrix[i] = (int*)realloc(g->matrix[i], (g->vertCount - 1) * sizeof(int));
         }
-        g->matrix = (int**)realloc(g->matrix, (g->vertCount - 1) * sizeof(int));
+
+        free(g->matrix[vert]);
+        for (int i = vert; i < g->vertCount - 1; i++) {
+            g->matrix[i] = g->matrix[i + 1];
+        }
+
+        g->matrix = (int**)realloc(g->matrix, (g->vertCount - 1) * sizeof(int*));
 
         g->vertCount--;
         return 1;
     }
 
     int tryDepthSearchPath(Graph *g, int root, int target) {
+        using namespace MyStack;
         Stack* s = createStack(10, sizeof(int));
         int visited[g->vertCount]{0};
 
@@ -153,16 +161,17 @@ namespace MyGraphAdjMatrix {
     }
 
     int tryBreadthSearchPath(Graph *g, int root, int target) {
+        using namespace MyQueue;
         Queue* q = createQueue(sizeof(int));
         int visited[g->vertCount]{0};
 
-        enqueue(q, &root);
+        addQueue(q, &root);
         printf("[%d]", root);
         visited[root] = 1;
 
         while (q->count > 0) {
             int vert;
-            dequeue(q, &vert);
+            removeQueue(q, &vert);
             for (int i = 0; i < g->vertCount; i++) {
                 if (i == vert) {
                     continue;
@@ -173,7 +182,7 @@ namespace MyGraphAdjMatrix {
                         freeQueue(q);
                         return 1;
                     }
-                    enqueue(q, &i);
+                    addQueue(q, &i);
                     printf("[%d]", i);
                     visited[i] = 1;
                 }
@@ -193,9 +202,22 @@ namespace MyGraphAdjMatrix {
         for (int i = 0; i < g->vertCount; i++) {
             printf("%d ", i);
             for (int j = 0; j < g->vertCount; j++) {
+                if (g->matrix[i][j] == 0) {
+                    printf(". ");
+                    continue;
+                }
                 printf("%d ", g->matrix[i][j]);
             }
             printf("\n");
         }
+        printf("\n");
+    }
+
+    void freeGraph(Graph *g) {
+        for (int i = 0; i < g->vertCount; i++) {
+            free(g->matrix[i]);
+        }
+        free(g->matrix);
+        free(g);
     }
 }
