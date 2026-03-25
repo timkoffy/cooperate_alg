@@ -29,8 +29,8 @@ namespace MyQueue {
         return q;
     }
 
-    void addQueue(Queue* q, void* data) {
-        if (q == nullptr || data == nullptr) return;
+    void addQueue(Queue* q, void* src) {
+        if (q == nullptr || src == nullptr) return;
 
         Item* item = (Item*)malloc(sizeof(Item));
         if (item == nullptr) return;
@@ -41,12 +41,11 @@ namespace MyQueue {
             return;
         }
 
-        memcpy(item->data, data, q->sizeVar);
+        memcpy(item->data, src, q->sizeVar);
         item->next = nullptr;
 
         q->count++;
 
-        // [0, 1, 2]
         if (q->end == nullptr) {
             q->first = item;
             q->end = item;
@@ -57,46 +56,45 @@ namespace MyQueue {
         q->end = item;
     }
 
-    int peekQueue(Queue* queue, void* out) {
-        if (queue == NULL || queue->front == NULL || out == NULL) return 0;
+    int peekQueue(Queue* q, void* dest) {
+        if (q == nullptr || q->first == nullptr || dest == nullptr) return 0;
 
-        memcpy(out, queue->front->data, queue->size_el);
+        memcpy(dest, q->first->data, q->sizeVar);
         return 1;
     }
 
-    // Удаление элемента из начала очереди
-    int dequeue(Queue* queue, void* out) {
-        if (queue == NULL || queue->front == NULL) return 0;
+    int removeQueue(Queue* q, void* dest) {
+        if (q == nullptr || q->first == nullptr) return 0;
 
-        // Сохраняем данные, если нужен указатель на выход
-        if (out != NULL) {
-            memcpy(out, queue->front->data, queue->size_el);
+        if (dest != nullptr) {
+            memcpy(dest, q->first->data, q->sizeVar);
         }
 
-        // Сохраняем указатель на удаляемый узел
-        Item* temp = queue->front;
+        Item* tmp = q->first;
+        q->first = q->first->next;
 
-        // Перемещаем указатель front на следующий элемент
-        queue->front = queue->front->next;
-
-        // Если очередь стала пустой, обнуляем и rear
-        if (queue->front == NULL) {
-            queue->rear = NULL;
+        if (q->first == nullptr) {
+            q->end = nullptr;
         }
 
-        // Освобождаем память
-        free(temp->data);
-        free(temp);
+        free(tmp->data);
+        free(tmp);
 
-        queue->count--;
+        q->count--;
         return 1;
     }
 
-    // Освобождение памяти очереди
-    void freeQueue(Queue* queue) {
-        if (queue) {
-            clearQueue(queue);
-            free(queue);
+    void freeQueue(Queue* q) {
+        if (q != nullptr) {
+            Item *ptr = q->first;
+            for (int i = 0; i < q->count; i++) {
+                Item *tmp = ptr->next;
+                free(ptr->data);
+                free(ptr);
+                ptr = tmp;
+                printf("!");
+            }
+            free(q);
         }
     }
 }

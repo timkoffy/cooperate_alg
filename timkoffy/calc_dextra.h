@@ -133,7 +133,7 @@ namespace CalcDextra {
         int i = 0;
         while (!isEmptyQueue(expression)) {
             Item cur;
-            dequeue(expression, &cur);
+            removeQueue(expression, &cur);
             if (cur.type == DIGIT) {
                 pushStack(s, &cur);
             }
