@@ -8,6 +8,7 @@ typedef struct
     int size_el;
     void *data;
     int hash;
+    int count;
 } HashBlock;
 
 typedef struct
@@ -103,7 +104,8 @@ int hashMapIndex(HashMap *dict, char *key)
         if (hbCurr->hash == hash)
             return index;
         curr = curr->next;
-        if (!curr) return -1;
+        if (!curr)
+            return -1;
         hbCurr = (HashBlock *)curr->data;
         index++;
     }
@@ -199,9 +201,16 @@ int hashMapAdd(HashMap **dictPtr, char *key, void *data, int size_el)
         return 0;
 
     int hash = hashCodeFirst(key, strlen(key));
-
-    if (hashMapIndex(dict, key) != -1)
-        return 0;
+    int index = hashMapIndex(dict, key);
+    if (index != -1)
+    {
+        HashBlock *HB = (HashBlock *)getElem(dict->baketArray[hash % dict->capacity], index);
+        if (HB->hash == hash)
+        {
+            HB->count++;
+            return 1;
+        }
+    }
 
     if ((dict->count + 1 > dict->capacity * 3 / 4) || lenSingleLink(dict->baketArray[hash % dict->capacity]) + 1 > 16)
     {
@@ -215,6 +224,7 @@ int hashMapAdd(HashMap **dictPtr, char *key, void *data, int size_el)
     hb->data = malloc(size_el);
     hb->size_el = size_el;
     hb->hash = hash;
+    hb->count = 1;
 
     memcpy(hb->data, data, size_el);
     addLast(dict->baketArray[hash % dict->capacity], hb);
@@ -277,7 +287,8 @@ int hashMapTryDel(HashMap **dictPtr, char *key)
             return 0;
     }
     int index = hashMapIndex(dict, key);
-    if (index == -1) return 0;
+    if (index == -1)
+        return 0;
     hashMapDelElement(dict->baketArray[hash % dict->capacity], index);
     dict->count--;
     *dictPtr = dict;
@@ -305,7 +316,8 @@ void *getHM(HashMap *dict, char *key)
             break;
 
         curr = curr->next;
-        if (!curr) return 0;
+        if (!curr)
+            return 0;
         hbCurr = (HashBlock *)curr->data;
     }
     if (hbCurr->hash != hash)
@@ -313,52 +325,61 @@ void *getHM(HashMap *dict, char *key)
     return hbCurr->data;
 }
 
-
-// Это прикладная функция ее необходимо постоянно обновлять под необходимые задачи!!!
-int printDict(HashMap* dict){
+int printDict(HashMap *dict)
+{
     int count = 0;
     for (int i = 0; i < dict->capacity; i++)
     {
         int lenCurrentElement = lenSingleLink(dict->baketArray[i]);
         for (int j = 0; j < lenCurrentElement; j++)
         {
-            HashBlock* HB = (HashBlock*)getElem(dict->baketArray[i],j);
-            printf("%s\n",(char*)HB->data);
+            HashBlock *HB = (HashBlock *)getElem(dict->baketArray[i], j);
+            printf("%s -> %i\n", (char *)HB->data, HB->count);
             count++;
         }
-
     }
     return count;
 }
+
+char *subString(char *str, int start, int end)
+{
+    int write = 0;
+    char *ret = (char *)malloc(end - start + 1);
+    for (int read = start; read < end; read++)
+    {
+        ret[write++] = str[read];
+    }
+    ret[write] = '\0';
+    return ret;
+}
+
+void allSubString(HashMap **dict, char *str)
+{
+    int indexStart = 0;
+    int lenStr = strlen(str);
+    while (str[indexStart] != '\0')
+    {
+        int indexInside = lenStr;
+        while (indexInside != indexStart)
+        {
+            char *sub = subString(str, indexStart, indexInside);
+            printf("%s\n", sub);
+            hashMapAdd(dict, sub, sub, strlen(sub) + 1);
+            free(sub);
+            indexInside--;
+        }
+        indexStart++;
+    }
+    printf("-------------------------------------\n");
+}
+
 int main()
 {
     HashMap *HM = initHashMap(7);
-    HashMap **dictPtr = &HM;
-    char str[] = "Hello";
-    char key1[] = "33";
-    hashMapAdd(dictPtr, key1, str, sizeof(str));
-    printf("Cap - %i\n", HM->capacity);
 
-    int n = 1448;
-    char key2[] = "33";
-    hashMapAdd(dictPtr, key2, &n, sizeof(n));
-    printf("Cap - %i\n", HM->capacity);
+    allSubString(&HM, "ababc");
 
-    char *el1 = (char *)getHM(HM, key1);
-
-    printf("SOSI (string): %s\n", el1);
-
-    int *el2 = (int *)getHM(HM, key2);
-
-    printf("YO (int): %i\n", *el2);
-
-    printf("Check 33 - %i\n", hashMapIndex(HM, key2));
-
-    hashMapTryDel(dictPtr, key1);
-
-    printf("Cap - %i\n", HM->capacity);
-
-    printf("Check 33 - %i\n", hashMapIndex(HM, key1));
+    printf("\n%i\n", printDict(HM));
 
     freeHashMap(HM);
 }
