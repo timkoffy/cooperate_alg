@@ -13,42 +13,38 @@ typedef struct{
 typedef struct 
 {
     int* way;
-    int way_size;
+    int size;
+    int point;
 }pointWay;
 
 
 
 Graph* createGraph(int countVert){
     Graph* g = (Graph*)malloc(sizeof(Graph));
-    if(!g) return 0;
     g->countVert = countVert;
 
-    g->AdjMatrix = (int**)malloc((countVert)*sizeof(int*));
+    g->AdjMatrix = (int**)malloc((countVert+1)*sizeof(int*));
     if (g->AdjMatrix == NULL){
+        free(g->AdjMatrix);
         free(g);
-        return 0;
+        return NULL;
     }
-    for (int i = 0; i < countVert; i++){
-        g->AdjMatrix[i] = (int*)calloc(countVert,sizeof(int));
+    for (int i = 1; i < countVert+1; i++){
+        g->AdjMatrix[i] = (int*)calloc((countVert+1),sizeof(int));
         if (!g->AdjMatrix[i]){ 
-            for (int j = 0; j < i; j++){
+            for (int j = 1; j < i+1; j++){
                 free(g->AdjMatrix[j]);
             }
             free(g->AdjMatrix);
             free(g);
-            return 0;
+            return NULL;
         }
     }
     return g;
 }
 
 int tryAddEdgeUnOri(Graph* g, int from, int to,int weight){
-    if(!g) return 0;
     if(from < 0 || to < 0 || from > g->countVert || to > g->countVert || to==from ) return 0;
-
-    to--;
-    from--;
-
     if (g->AdjMatrix[to][from] == 1 && g->AdjMatrix[from][to] == 1) return 0;
 
     g->AdjMatrix[to][from] = weight;
@@ -58,12 +54,7 @@ int tryAddEdgeUnOri(Graph* g, int from, int to,int weight){
 }
 
 int tryDelEdgeUnOri(Graph* g, int from, int to,int weight){
-    if(!g) return 0;
     if(from < 0 || to < 0 || from > g->countVert || to > g->countVert || to == from) return 0;
-
-    to--;
-    from--;
-
     if (g->AdjMatrix[to][from] == 0 && g->AdjMatrix[from][to] == 0) return 0;
 
     g->AdjMatrix[to][from] = 0;
@@ -73,12 +64,7 @@ int tryDelEdgeUnOri(Graph* g, int from, int to,int weight){
 }
 
 int tryAddEdgeOri(Graph* g, int from, int to,int weight){
-    if(!g) return 0;
     if(from < 0 || to < 0 || from > g->countVert || to > g->countVert || to==from ) return 0;
-
-    to--;
-    from--;
-
     if (g->AdjMatrix[to][from] == 1 && g->AdjMatrix[from][to] == 1) return 0;
 
     g->AdjMatrix[to][from] = weight;
@@ -87,35 +73,23 @@ int tryAddEdgeOri(Graph* g, int from, int to,int weight){
 }
 
 int tryDelEdgeOri(Graph* g, int from, int to,int weight){
-    if(!g) return 0;
     if(from < 0 || to < 0 || from > g->countVert || to > g->countVert || to == from) return 0;
-    
-    to--;
-    from--;
-
     if (g->AdjMatrix[to][from] == 0 && g->AdjMatrix[from][to] == 0) return 0;
 
     g->AdjMatrix[to][from] = 0;
 
-    
     return 1;
 }
 
 int tryAddVert(Graph* g){
-    if(!g) return 0;
-
-    int** tmp= (int**)realloc(g->AdjMatrix,sizeof(int*)*(g->countVert+1));
-    if (!tmp) return 0;
-    
-    for (int i = 0; i < g->countVert+1; i++){
-        int* temp = (int*)realloc(g->AdjMatrix[i],(g->countVert+1)*sizeof(int));
-        if (temp){
-            for (int j = 0; j < i; j++)
+    int** tmp= (int**)realloc(g->AdjMatrix,sizeof(int*)*(g->countVert+2));
+    if (tmp == NULL) return 0;
+    for (int i = 1; i < g->countVert+1+1; i++){
+        int* temp = (int*)realloc(g->AdjMatrix[i],(g->countVert+1+1)*sizeof(int));
+        if (temp==NULL){
+            for (int j = 1; j < i+1; j++)
             {
-                temp = (int*)realloc(g->AdjMatrix[j],(g->countVert)*sizeof(int));//Узнать у Пиминова стоит ли освобождать все данные при нарушении работы realloc
-                
-                if(!temp) {}
-                g->AdjMatrix[j] = temp;
+                g->AdjMatrix[j] = (int*)realloc(g->AdjMatrix[i],(g->countVert+1)*sizeof(int));
             }
             return 0;
         }
@@ -128,27 +102,25 @@ int tryAddVert(Graph* g){
 }
 int tryDelVert(Graph* g, int delVert){  
     int ok = 0;
-    for (int i = 0; i < g->countVert; i++){
+    int** tmp = g->AdjMatrix;
+    for (int i = 1; i < g->countVert+1; i++){
         int ok2 = 0;
-        for (int j = 0; j < g->countVert; j++)
+        for (int j = 1; j < g->countVert+1; j++)
         {   
             if(j == delVert) ok2 = 1;
 
             if (ok2){
-                g->AdjMatrix[i][j] = g->AdjMatrix[i][j+1];
+                tmp[i][j] = tmp[i][j+1];
             }
         }
         
         if(delVert == i) ok = 1;
         if (ok){
-            g->AdjMatrix[i] = g->AdjMatrix[i+1];
+            tmp[i] = tmp[i+1];
         }
-        int* temp = (int*)realloc(g->AdjMatrix[i],(g->countVert-1)*sizeof(int));
-        if (!temp){}//Узнать у Пиминова стоит ли освобождать все данные при нарушении работы realloc
-        g->AdjMatrix[i] = temp;
+        tmp[i] = (int*)realloc(tmp[i],g->countVert*sizeof(int));
     }
-    int** tmp = (int**)realloc(g->AdjMatrix,(g->countVert-1)*sizeof(int*));
-    if (!tmp){}//Узнать у Пиминова стоит ли освобождать все данные при нарушении работы realloc
+    tmp = (int**)realloc(tmp,g->countVert*sizeof(int*));
     g->AdjMatrix = tmp;
 
     return 1;
@@ -157,20 +129,14 @@ int tryDelVert(Graph* g, int delVert){
 
 void printGraph(Graph* g){
     printf("    ");
-    for (int i = 0; i < g->countVert; i++){
-        printf(" %i ",i+1);
+    for (int i = 1; i < g->countVert+1; i++){
+        printf(" %i ",i);
     }
     printf("\n");
 
-    printf("    ");
-    for (int i = 0; i < g->countVert; i++){
-        printf(" | ");
-    }
-    printf("\n");
-
-    for (int i = 0; i < g->countVert; i++){
-        printf("%i — ",i+1);
-        for (int j = 0; j < g->countVert; j++){
+    for (int i = 1; i < g->countVert+1; i++){
+        printf("%i - ",i);
+        for (int j = 1; j < g->countVert+1; j++){
             printf(" %i ",g->AdjMatrix[i][j]);
         }
         printf("\n");
@@ -202,7 +168,9 @@ int inList(int* list,int len, int el){
 int DFS(Graph* g, int point, int endPoint, int* visited){
     visited[point] = 1;
     if (point == endPoint) return 1;
-    for (int i = 0; i < g->countVert; i++){
+    for (int i = 1; i < g->countVert+1; i++){
+        if (g->AdjMatrix[point][i]==1 &&visited[i]==1) printf("Find Cycle\n");
+
         if( g->AdjMatrix[point][i]==1 &&visited[i]==0) {
             return DFS(g,i,endPoint,visited);
         }
@@ -212,32 +180,27 @@ int DFS(Graph* g, int point, int endPoint, int* visited){
 }
 
 int initDFS(Graph* g, int startPoint, int endPoint){
-    if(startPoint == endPoint) return 1;
-
-    int* visited = (int*)malloc(sizeof(int)*(g->countVert));
-    for (int i = 0; i < g->countVert; i++)
+    int* visited = (int*)malloc(sizeof(int)*(g->countVert+1));
+    for (int i = 1; i < g->countVert+1; i++)
     {
         visited[i] = 0;
     }
-    return DFS(g,startPoint-1,endPoint-1,visited);// startPoint-1,endPoint-1 тк мы предполагаем что нам дают номера вершин(номер начинаются с 1), а работаем мы по индексам точек
+    return DFS(g,startPoint,endPoint,visited);
 }
 
 int neighbors(Graph* g, int point, Queue* q,int* visited){
     visited[point] = 1;
-    for (int i = 0; i < g->countVert; i++){
+    for (int i = 1; i < g->countVert+1; i++){
         if(g->AdjMatrix[point][i]==1 && visited[i]==0) init(q,i);
     }
     return 0;
 }
 
 int initBFS(Graph* g, int startPoint, int endPoint){
-    if(startPoint == endPoint) return 1;
-
     Queue* q = (Queue*)malloc(sizeof(Queue));
-    int* visited = (int*)malloc(sizeof(int)*g->countVert);
+    int* visited = (int*)malloc(sizeof(int)*(g->countVert+1));
 
-    int point=startPoint-1;
-    endPoint--;
+    int point=startPoint;
     while (1){
         neighbors(g,point,q,visited);
         point=pop(q);
@@ -255,71 +218,57 @@ int checkAll(int* visited,int size){
 
 int findCycle(Graph* g,int point,pointWay** pointsway, int* visited){
     visited[point] = 1;
-    for (int i = 0; i < g->countVert; i++){
-        if (g->AdjMatrix[point][i]==1 && visited[i]==1 && i != pointsway[point]->way[pointsway[point]->way_size-2]){
-            return point;
-        }
-        
-        if (g->AdjMatrix[point][i]==1 &&visited[i]==0) {
-            pointsway[i]->way_size = pointsway[point]->way_size+1;
-            pointsway[i]->way = (int*)realloc(pointsway[point]->way,(pointsway[i]->way_size));
-            pointsway[i]->way[pointsway[i]->way_size-1] = i;
+    if (checkAll(visited,g->countVert+1)) return 0;
+    for (int i = 1; i < g->countVert+1; i++){
+        if (g->AdjMatrix[point][i]==1 &&visited[i]==1 && i != pointsway[point]->way[pointsway[point]->size-1]) return i;
+
+        if( g->AdjMatrix[point][i]==1 &&visited[i]==0) {
+            pointsway[i]->point = i;
+            pointsway[i]->size = pointsway[point]->size+1;
+            pointsway[i]->way = (int*)realloc(pointsway[point]->way,sizeof(int)*pointsway[i]->size);
+            pointsway[i]->way[pointsway[i]->size-1] = point;
+
             return findCycle(g,i,pointsway,visited);
         }
-        if (checkAll(visited,g->countVert)) return -1;
     }
-    printf("Break point 2 \n");
-    return -1;
+    return 0;
 }
 
-void initFindCycle(Graph* g,int startPoint){
+int initFindCycle(Graph* g,int startPoint){
 
-    int* visited = (int*)malloc(sizeof(int)*(g->countVert));
-    for (int i = 0; i < g->countVert; i++)
+    int* visited = (int*)malloc(sizeof(int)*(g->countVert+1));
+    for (int i = 1; i < g->countVert+1; i++)
     {
         visited[i] = 0;
     }
-    pointWay** pointsway = (pointWay**)malloc(sizeof(pointWay)*(g->countVert));
-    for (int i = 0; i < g->countVert; i++)
+    pointWay** pointsway = (pointWay**)malloc(sizeof(pointWay)*(g->countVert+1));
+    for (int i = 0; i < g->countVert+1; i++)
     {
         pointsway[i] = (pointWay*)malloc(sizeof(pointWay));
-        pointsway[i]->way = (int*)calloc(1,sizeof(int));
-        pointsway[i]->way_size = 1;
-
-
     }
-    int index = findCycle(g,startPoint-1,pointsway,visited);
-    printf("Find cycle: ", index);
-    if (index == -1) return;
-
-    for (int i = 0; i < pointsway[index]->way_size; i++)
+    printf("%i ", pointsway[0]);
+    pointsway[startPoint]->point = startPoint;
+    pointsway[startPoint]->size = 0;
+    int index = findCycle(g,startPoint,pointsway,visited);
+    printf("%i ", pointsway[index]);
+    for (int i = 0; i < pointsway[index]->size; i++)
     {
-        printf("%i ",pointsway[index]->way[i]+1);
+        printf("%i ",pointsway[index]->way[i]);
     }
-    printf("\n");
-
-    for (int j = 0; j < g->countVert; j++)
-    {
-        free(pointsway[j]);
-    }
-    free(pointsway);
     
-
+    return 0;
 }
 
 int main(){
-    Graph* g = createGraph(7);
+    Graph* g = createGraph(6);
     tryAddEdgeUnOri(g,1,2,1);
     tryAddEdgeUnOri(g,2,3,1);
     tryAddEdgeUnOri(g,3,4,1);
     tryAddEdgeUnOri(g,4,5,1);
     tryAddEdgeUnOri(g,5,6,1);
-    tryAddEdgeUnOri(g,6,7,1);
-    tryAddEdgeUnOri(g,7,1,1);
     tryAddEdgeUnOri(g,6,1,1);
-
-    printGraph(g);
-
+   printGraph(g);
     initFindCycle(g,1);
+    
     return 1;
 }
