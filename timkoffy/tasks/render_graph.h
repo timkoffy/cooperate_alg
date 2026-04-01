@@ -105,17 +105,26 @@ void renderGraph(Graph *g) {
     }
 
     // заполняем отступы
-    for (int i = 0; i < g->vertCount; i++) {
-        if (i == root) {
-            offsets[i] = 0;
-            continue;
+    int updated = 1;
+    while (updated) {
+        updated = 0;
+        for (int i = 0; i < g->vertCount; i++) {
+            int newOffset;
+            if (i == root) {
+                newOffset = 0;
+            } else if (prevBro[i] == -1) {
+                newOffset = offsets[parent[i]];
+            } else {
+                newOffset = offsets[prevBro[i]] + widths[prevBro[i]];
+            }
+
+            if (newOffset != offsets[i]) {
+                offsets[i] = newOffset;
+                updated = 1;
+            }
         }
-        if (prevBro[i] == -1) {
-            offsets[i] = offsets[parent[i]];
-            continue;
-        }
-        offsets[i] = offsets[prevBro[i]] + widths[prevBro[i]];
     }
+
 
     // заполняем буфер
     for (int i = 0; i < g->vertCount; i++) {
@@ -125,6 +134,8 @@ void renderGraph(Graph *g) {
     Helper::printArrayInt(levels, g->vertCount, "levels");
     Helper::printArrayInt(prevBro, g->vertCount, "prevBro");
     Helper::printArrayInt(widths, g->vertCount, "widths");
+    Helper::printArrayInt(offsets, g->vertCount, "offsets");
+    Helper::printArrayInt(parent, g->vertCount, "parent");
 
     // todo: стрелочки
     // todo: центрирование
