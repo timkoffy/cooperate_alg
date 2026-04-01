@@ -264,14 +264,20 @@ namespace MyGraphAdjMatrix {
     }
 
     void printGraph(Graph *g) {
-        printf("  ");
+        printf("    ");
         for (int i = 0; i < g->vertCount; i++) {
             printf("%d ", i);
         }
         printf("\n");
 
+        printf("    ");
         for (int i = 0; i < g->vertCount; i++) {
-            printf("%d ", i);
+            printf("| ");
+        }
+        printf("\n");
+
+        for (int i = 0; i < g->vertCount; i++) {
+            printf("%d — ", i);
             for (int j = 0; j < g->vertCount; j++) {
                 if (g->matrix[i][j] == 0) {
                     printf(". ");

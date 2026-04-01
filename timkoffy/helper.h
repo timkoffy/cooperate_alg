@@ -46,4 +46,14 @@ namespace Helper {
     unsigned int hashCodeFirst(char *str) {
         return hashCodeFirst(str, 5381);
     }
+
+    void printArrayInt(int *array, int size, char *name) {
+        if (array == nullptr || size < 1) return;
+
+        printf("%s: ", name);
+        for (int i = 0; i < size; i++) {
+            printf("%d ", array[i]);
+        }
+        printf("\n");
+    }
 }
