@@ -28,17 +28,14 @@ void renderGraph(Graph *g) {
         }
     }
 
-    int *countVertsOnLevel = (int*)calloc(g->vertCount, sizeof(int));
     int *levels = (int*)calloc(g->vertCount, sizeof(int));
     int *parent = (int*)malloc(g->vertCount * sizeof(int));
-
     int *widths = (int*)malloc(g->vertCount * sizeof(int));
     int *offsets = (int*)malloc(g->vertCount * sizeof(int));
     int *prevBro = (int*)malloc(g->vertCount * sizeof(int));
     // offsets - хранит отступы
     // widths - хранит относительные ширины
     // prevBro - хранит индексы вершин предыдущих братьев. если самый первый брат, то -1
-
 
     Queue *q = createQueue(sizeof(int));
 
@@ -62,6 +59,7 @@ void renderGraph(Graph *g) {
 
     // BFS с заполнением высот каждой вершины
     int maxLevel = 0;
+    int nVert = 1;
     while (q->count > 0) {
         int cur;
         removeQueue(q, &cur);
@@ -70,6 +68,7 @@ void renderGraph(Graph *g) {
             if (i == cur) continue;
             if (g->matrix[cur][i] != 0) {
                 addQueue(q, &i);
+                nVert++;
                 parent[i] = cur;
 
                 prevBro[i] = lastBro;
@@ -85,10 +84,10 @@ void renderGraph(Graph *g) {
     {
         int curLevel = maxLevel;
         while (curLevel >= 0) {
-            for (int u = 0; u < g->vertCount; u++) {
+            for (int u = 0; u < nVert; u++) {
                 if (curLevel == levels[u]) {
                     int width = 0;
-                    for (int v = 0; v < g->vertCount; v++) {
+                    for (int v = 0; v < nVert; v++) {
                         if (g->matrix[u][v] != 0) {
                             width += widths[v];
                         }
@@ -108,7 +107,7 @@ void renderGraph(Graph *g) {
     int updated = 1;
     while (updated) {
         updated = 0;
-        for (int i = 0; i < g->vertCount; i++) {
+        for (int i = 0; i < nVert; i++) {
             int newOffset;
             if (i == root) {
                 newOffset = 0;
@@ -125,24 +124,50 @@ void renderGraph(Graph *g) {
         }
     }
 
-
     // заполняем буфер
-    for (int i = 0; i < g->vertCount; i++) {
-        buffer[levels[i]][offsets[i] * 2] = i + '0';
+    for (int i = 0; i < nVert; i++) {
+        int row = levels[i] * 4;
+        int col = offsets[i] * 3;
+
+        buffer[row + 3][col] = i + '0';
+
+        if (i == root) continue;
+
+        buffer[row][offsets[parent[i]] * 3] = '|';
+        buffer[row + 2][col] = '|';
+
+        if (prevBro[i] == -1 && i != root) {
+            buffer[row + 1][col] = '+';
+            continue;
+        }
+
+        int j = col - 1;
+        while (j > offsets[prevBro[i]] * 3) {
+            buffer[row + 1][j] = '-';
+            j--;
+        }
+
+        buffer[row + 1][col] = '+';
     }
 
-    Helper::printArrayInt(levels, g->vertCount, "levels");
-    Helper::printArrayInt(prevBro, g->vertCount, "prevBro");
-    Helper::printArrayInt(widths, g->vertCount, "widths");
-    Helper::printArrayInt(offsets, g->vertCount, "offsets");
-    Helper::printArrayInt(parent, g->vertCount, "parent");
+    // Helper::printArrayInt(levels, nVert, "levels");
+    // Helper::printArrayInt(prevBro, nVert, "prevBro");
+    // Helper::printArrayInt(widths, nVert, "widths");
+    // Helper::printArrayInt(offsets, nVert, "offsets");
+    // Helper::printArrayInt(parent, nVert, "parent");
 
-    // todo: стрелочки
-    // todo: центрирование
     // todo: сжать буффер до минимально возможной высоты и ширины для экономии пространства в терминале
 
     printBuffer(buffer, h, w);
 
+    for (int i = 0; i < h; i++) {
+        free(buffer[i]);
+    }
     free(buffer);
+
     free(levels);
+    free(parent);
+    free(widths);
+    free(offsets);
+    free(prevBro);
 }
