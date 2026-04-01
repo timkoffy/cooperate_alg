@@ -75,4 +75,12 @@ namespace MyStack {
             free(stack);
         }
     }
+
+    void printStackInt(Stack* s) {
+        printf("stack: ");
+        for (int i = 0; i < s->count; i++) {
+            printf("%d ", ((int*)s->first)[i]);
+        }
+        printf("\n");
+    }
 }

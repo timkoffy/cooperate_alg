@@ -1,7 +1,10 @@
 #pragma once
+#include <climits>
 #include<stdio.h>
 #include<stdlib.h>
+#include <unordered_map>
 
+#include "hashmap_linkedlist.h"
 #include "my_queue.h"
 #include "my_stack.h"
 
@@ -39,17 +42,33 @@ namespace MyGraphAdjMatrix {
         return g;
     }
 
-    int tryAddEdge(Graph* g, int from, int to) {
+    int tryAddEdge(Graph* g, int from, int to, int weight) {
         if (from == to) return 0;
 
         if (from < 0 || from >= g->vertCount || to < 0 || to >= g->vertCount) {
             return 0;
         }
 
-        g->matrix[from][to] = 1;
-        g->matrix[to][from] = 1;
+        g->matrix[from][to] = weight;
+        // g->matrix[to][from] = weight;
 
         return 1;
+    }
+
+    int tryAddEdge(Graph* g, int from, int to) {
+        return tryAddEdge(g, from, to, 1);
+    }
+
+    int tryAddUnorderedEdge(Graph* g, int from, int to, int weight) {
+        if (!tryAddEdge(g, from, to, weight)) {
+            return 0;
+        }
+        g->matrix[to][from] = weight;
+        return 1;
+    }
+
+    int tryAddUnorderedEdge(Graph* g, int from, int to) {
+        return tryAddUnorderedEdge(g, from, to, 1);
     }
 
     int tryDeleteEdge(Graph* g, int from, int to) {
@@ -160,36 +179,88 @@ namespace MyGraphAdjMatrix {
         return 0;
     }
 
-    int tryBreadthSearchPath(Graph *g, int root, int target) {
+    int tryBreadthSearchPath(Graph *g, int start, int target) {
         using namespace MyQueue;
         Queue* q = createQueue(sizeof(int));
         int visited[g->vertCount]{0};
 
-        addQueue(q, &root);
-        printf("[%d]", root);
-        visited[root] = 1;
+        addQueue(q, &start);
+        visited[start] = 1;
 
         while (q->count > 0) {
-            int vert;
-            removeQueue(q, &vert);
+            int cur;
+            removeQueue(q, &cur);
+            printf("%d \n", cur);
             for (int i = 0; i < g->vertCount; i++) {
-                if (i == vert) {
-                    continue;
-                }
-                if (g->matrix[vert][i] != 0 && visited[i] == 0) {
+                if (i == cur) continue;
+                if (g->matrix[cur][i] != 0 && visited[i] == 0) {
                     if (i == target) {
-                        printf("[%d]!", target);
+                        printf("%d!\n", cur);
                         freeQueue(q);
                         return 1;
                     }
-                    addQueue(q, &i);
-                    printf("[%d]", i);
                     visited[i] = 1;
+                    addQueue(q, &i);
                 }
             }
         }
         freeQueue(q);
         return 0;
+    }
+
+    int tryFindShortestPath(Graph *g, int start, int target) {
+        if (start < 0 || start >= g->vertCount || target < 0 || target >= g->vertCount)
+            return 0;
+
+        int *dist = (int*)malloc(g->vertCount * sizeof(int));
+        if (!dist) return 0;
+
+        for (int i = 0; i < g->vertCount; i++)
+            dist[i] = INT_MAX;
+        dist[start] = 0;
+
+        for (int k = 0; k < g->vertCount - 1; k++) {
+            int updated = 0;
+            for (int u = 0; u < g->vertCount; u++) {
+                if (dist[u] == INT_MAX) continue;
+                for (int v = 0; v < g->vertCount; v++) {
+                    int w = g->matrix[u][v];
+                    if (w == 0) continue;
+                    if (dist[u] != INT_MAX && dist[u] + w < dist[v]) {
+                        dist[v] = dist[u] + w;
+                        updated = 1;
+                    }
+                }
+            }
+            if (!updated) break;
+        }
+
+        int negCycle = 0;
+        for (int u = 0; u < g->vertCount; u++) {
+            if (dist[u] == INT_MAX) continue;
+            for (int v = 0; v < g->vertCount; v++) {
+                int w = g->matrix[u][v];
+                if (w == 0) continue;
+                if (dist[u] != INT_MAX && dist[u] + w < dist[v]) {
+                    negCycle = 1;
+                    break;
+                }
+            }
+            if (negCycle) break;
+        }
+
+        if (negCycle) {
+            free(dist);
+            return 0;
+        }
+        if (dist[target] == INT_MAX) {
+            free(dist);
+            return 0;
+        }
+        printGraph(g);
+        printf("%d", dist[target]);
+        free(dist);
+        return 1;
     }
 
     void printGraph(Graph *g) {

@@ -18,4 +18,6 @@ add_executable(algorithms-and-data-structures main.cpp
         timkoffy/array.h
         timkoffy/eulerPath.h
         timkoffy/bloomFilter.h
-        timkoffy/tasks/count_substrings_with_hashmap.h)
+        timkoffy/tasks/count_substrings_with_hashmap.h
+        timkoffy/tasks/find_cycle_graph.h
+        timkoffy/tasks/render_graph.h)
