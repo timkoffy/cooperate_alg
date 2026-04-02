@@ -128,9 +128,9 @@ void renderGraph(Graph *g) {
     // считаем размеры буфера + инициализируем
     int w = 0;
     for (int i = 0; i < g->vertCount; i++) {
-        if (offsets[i] * 3 > w) w = offsets[i] * 3;
+        if (offsets[i] * 4 > w) w = offsets[i] * 4;
     }
-    w += 3;
+    w += 4;
 
     int h = maxLevel * 4 + 4;
 
@@ -147,13 +147,17 @@ void renderGraph(Graph *g) {
         if (!visited[i]) continue;
 
         int row = levels[i] * 4;
-        int col = offsets[i] * 3;
+        int col = offsets[i] * 4;
+        col += widths[i] * 4 / 2;
 
         buffer[row + 3][col] = i + 'A';
 
         if (i == root) continue;
 
-        buffer[row][offsets[parent[i]] * 3] = '|';
+        int colParent = offsets[parent[i]] * 4;
+        colParent += widths[parent[i]] * 4 / 2;
+
+        buffer[row][colParent] = '|';
         buffer[row + 2][col] = '|';
 
         if (prevBro[i] == -1 && i != root) {
@@ -162,8 +166,13 @@ void renderGraph(Graph *g) {
         }
 
         int j = col - 1;
-        while (j > offsets[prevBro[i]] * 3) {
-            buffer[row + 1][j] = '-';
+        int prevBroCol = (offsets[prevBro[i]] * 4) + (widths[prevBro[i]] * 4 / 2);
+        while (j > prevBroCol) {
+            if (j == colParent) {
+                buffer[row + 1][j] = '+';
+            } else if (buffer[row + 1][j] != '-') {
+                buffer[row + 1][j] = '-';
+            }
             j--;
         }
 
