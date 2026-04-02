@@ -71,7 +71,7 @@ namespace MyGraphAdjMatrix {
         return tryAddUnorderedEdge(g, from, to, 1);
     }
 
-    int tryDeleteEdge(Graph* g, int from, int to) {
+    int tryDeleteUnorderedEdge(Graph* g, int from, int to) {
         if (from == to) return 0;
 
         if (from < 0 || from >= g->vertCount || to < 0 || to >= g->vertCount) {
@@ -84,6 +84,22 @@ namespace MyGraphAdjMatrix {
 
         g->matrix[from][to] = 0;
         g->matrix[to][from] = 0;
+
+        return 1;
+    }
+
+    int tryDeleteEdge(Graph* g, int from, int to) {
+        if (from == to) return 0;
+
+        if (from < 0 || from >= g->vertCount || to < 0 || to >= g->vertCount) {
+            return 0;
+        }
+
+        if (g->matrix[from][to] == 0) {
+            return 0;
+        }
+
+        g->matrix[from][to] = 0;
 
         return 1;
     }
@@ -266,7 +282,7 @@ namespace MyGraphAdjMatrix {
     void printGraph(Graph *g) {
         printf("    ");
         for (int i = 0; i < g->vertCount; i++) {
-            printf("%d ", i);
+            printf("%c ", i + 'A');
         }
         printf("\n");
 
@@ -277,7 +293,7 @@ namespace MyGraphAdjMatrix {
         printf("\n");
 
         for (int i = 0; i < g->vertCount; i++) {
-            printf("%d — ", i);
+            printf("%c — ", i + 'A');
             for (int j = 0; j < g->vertCount; j++) {
                 if (g->matrix[i][j] == 0) {
                     printf(". ");
