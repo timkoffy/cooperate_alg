@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../graph_adjmatrix.h"
+#include "../data_structures/graph_adjmatrix.h"
 
 using namespace MyGraphAdjMatrix;
 using namespace MyQueue;
@@ -14,9 +14,9 @@ void printBuffer(char **buffer, int height, int width) {
     }
 }
 
+// вывод ориентированного графа-дерева
 void renderGraph(Graph *g) {
-    // todo: чекнуть на существование графа
-    // todo: чекнуть на ацикличность + пока что на связность(потом можно будет и на несвязных)
+    if (g == nullptr) return;
 
     int *levels = (int*)calloc(g->vertCount, sizeof(int));
     int *parent = (int*)malloc(g->vertCount * sizeof(int));

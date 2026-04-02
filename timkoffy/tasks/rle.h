@@ -1,7 +1,8 @@
 #pragma once
 
-#include "helper.h"
+#include "../helper.h"
 
+// RLE сжатие строк состоящих из букв. "AAAAABBC" -> "5A2B1C"
 namespace Rle {
     char* encode(char* str) {
         char* res = (char*)malloc(100 * sizeof(char));

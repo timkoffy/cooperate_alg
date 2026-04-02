@@ -1,6 +1,6 @@
 #pragma once
-#include "../graph_adjmatrix.h"
-#include "../my_stack.h"
+#include "../data_structures/graph_adjmatrix.h"
+#include "../data_structures/stack.h"
 
 using namespace MyGraphAdjMatrix;
 using namespace MyStack;

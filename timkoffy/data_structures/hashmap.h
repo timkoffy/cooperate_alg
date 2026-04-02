@@ -3,7 +3,7 @@
 #include <cstdlib>
 
 #include "linked_list.h"
-#include "helper.h"
+#include "../helper.h"
 
 using namespace MyLinkedList;
 
@@ -18,13 +18,6 @@ namespace MyHashMapLinkedList {
         int count;
         int capacity;
     } HashMap;
-
-    // вставка в хешмапу
-    // хеш функция
-    // расширение капасити
-    // удаление из хешмапы
-    // получение значения по ключу
-    // проверка на наличие в хешмапе
 
     HashMap *createHashMap(int size) {
         HashMap *hashMap = (HashMap*)malloc(sizeof(HashMap));
@@ -86,7 +79,7 @@ namespace MyHashMapLinkedList {
             while (cur != nullptr) {
                 Entry *entry = (Entry*)cur->data;
 
-                unsigned int hash = Helper::hashCodeFirst(entry->key);
+                unsigned int hash = Helper::hashCode(entry->key);
                 int newIndex = hash % newCapacity;
 
                 List *newBucket = hm->bucketArray[newIndex];
@@ -109,7 +102,7 @@ namespace MyHashMapLinkedList {
             resizeCapacity(hm, hm->capacity * 2);
         }
 
-        unsigned int hash = Helper::hashCodeFirst(key);
+        unsigned int hash = Helper::hashCode(key);
         int index = hash % hm->capacity;
 
         List *bucket = hm->bucketArray[index];
@@ -143,7 +136,7 @@ namespace MyHashMapLinkedList {
     int containsKey(HashMap *hm, char *key) {
         if (hm == nullptr || key == nullptr) return 0;
 
-        unsigned int hash = Helper::hashCodeFirst(key);
+        unsigned int hash = Helper::hashCode(key);
         int index = hash % hm->capacity;
 
         List *bucket = hm->bucketArray[index];
@@ -158,7 +151,7 @@ namespace MyHashMapLinkedList {
     int* getFromHashMap(HashMap *hm, char *key) {
         if (hm == nullptr || key == nullptr) return nullptr;
 
-        unsigned int hash = Helper::hashCodeFirst(key);
+        unsigned int hash = Helper::hashCode(key);
         int index = hash % hm->capacity;
 
         List *bucket = hm->bucketArray[index];
@@ -175,7 +168,7 @@ namespace MyHashMapLinkedList {
     int tryRemoveFromHashMap(HashMap *hm, char *key) {
         if (hm == nullptr || key == nullptr) return 0;
 
-        unsigned int hash = Helper::hashCodeFirst(key);
+        unsigned int hash = Helper::hashCode(key);
         int index = hash % hm->capacity;
 
         List *bucket = hm->bucketArray[index];

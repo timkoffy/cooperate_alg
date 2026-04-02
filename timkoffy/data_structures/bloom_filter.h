@@ -1,7 +1,7 @@
 #pragma once
 #include <cstdlib>
 
-#include "helper.h"
+#include "../helper.h"
 
 namespace MyBloomFilter {
     typedef struct {

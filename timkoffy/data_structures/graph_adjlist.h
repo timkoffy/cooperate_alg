@@ -1,7 +1,7 @@
 #pragma once
 #include <cstdio>
 
-#include "my_stack.h"
+#include "stack.h"
 
 namespace MyGraphAdjList {
     typedef struct {

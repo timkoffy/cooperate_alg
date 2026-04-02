@@ -1,12 +1,10 @@
 #pragma once
 #include <climits>
-#include<stdio.h>
-#include<stdlib.h>
-#include <unordered_map>
+#include<cstdio>
 
-#include "hashmap_linkedlist.h"
-#include "my_queue.h"
-#include "my_stack.h"
+#include "hashmap.h"
+#include "queue.h"
+#include "stack.h"
 
 namespace MyGraphAdjMatrix {
     typedef struct {
@@ -16,27 +14,27 @@ namespace MyGraphAdjMatrix {
 
     Graph* createGraph(int vertCount) {
         Graph* g = (Graph*)malloc(sizeof(Graph));
-        if (g == NULL) {
-            return NULL;
+        if (g == nullptr) {
+            return nullptr;
         }
 
         g->vertCount = vertCount;
 
         g->matrix = (int**)malloc(sizeof(int*) * vertCount);
-        if (g->matrix == NULL) {
+        if (g->matrix == nullptr) {
             free(g);
-            return NULL;
+            return nullptr;
         }
 
         for (int i = 0; i < vertCount; i++) {
             g->matrix[i] = (int*)calloc(vertCount, sizeof(int));
-            if (g->matrix[i] == NULL) {
+            if (g->matrix[i] == nullptr) {
                 for (int j = 0; j < i; j++) {
                     free(g->matrix[j]);
                 }
                 free(g->matrix);
                 free(g);
-                return NULL;
+                return nullptr;
             }
         }
         return g;
@@ -50,7 +48,6 @@ namespace MyGraphAdjMatrix {
         }
 
         g->matrix[from][to] = weight;
-        // g->matrix[to][from] = weight;
 
         return 1;
     }
@@ -71,23 +68,6 @@ namespace MyGraphAdjMatrix {
         return tryAddUnorderedEdge(g, from, to, 1);
     }
 
-    int tryDeleteUnorderedEdge(Graph* g, int from, int to) {
-        if (from == to) return 0;
-
-        if (from < 0 || from >= g->vertCount || to < 0 || to >= g->vertCount) {
-            return 0;
-        }
-
-        if (g->matrix[from][to] == 0 || g->matrix[to][from] == 0) {
-            return 0;
-        }
-
-        g->matrix[from][to] = 0;
-        g->matrix[to][from] = 0;
-
-        return 1;
-    }
-
     int tryDeleteEdge(Graph* g, int from, int to) {
         if (from == to) return 0;
 
@@ -104,21 +84,29 @@ namespace MyGraphAdjMatrix {
         return 1;
     }
 
+    int tryDeleteUnorderedEdge(Graph* g, int from, int to) {
+        if (!tryDeleteEdge(g, from, to)) {
+            return 0;
+        }
+        g->matrix[to][from] = 0;
+        return 1;
+    }
+
     int tryAddVerticle(Graph* g) {
         int** tmp = (int**)realloc(g->matrix, (g->vertCount + 1) * sizeof(int*));
-        if (tmp == NULL) {
+        if (tmp == nullptr) {
             return 0;
         }
 
         tmp[g->vertCount] = (int*)calloc(g->vertCount + 1, sizeof(int));
-        if (tmp[g->vertCount] == NULL) {
+        if (tmp[g->vertCount] == nullptr) {
             g->matrix = tmp;
             return 0;
         }
 
         for (int i = 0; i < g->vertCount; i++) {
             int *tmp2 = (int*) realloc(tmp[i], (g->vertCount + 1) * sizeof(int));
-            if (tmp2 == NULL) {
+            if (tmp2 == nullptr) {
                 for (int j = 0; j < i; i++) {
                     tmp[j] = (int *) realloc(tmp[j], g->vertCount * sizeof(int));
                 }

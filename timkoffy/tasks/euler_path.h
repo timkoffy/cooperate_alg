@@ -1,7 +1,7 @@
 #include <iostream>
 
-#include "my_graph_adjlist.h"
-#include "array.h"
+#include "../data_structures/graph_adjlist.h"
+#include "../data_structures/array.h"
 
 using namespace MyGraphAdjList;
 using namespace MyStack;

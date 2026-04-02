@@ -1,6 +1,6 @@
 #pragma once
 #include <cstdlib>
-#include "../hashmap_linkedlist.h"
+#include "../data_structures/hashmap.h"
 
 using namespace MyHashMapLinkedList;
 

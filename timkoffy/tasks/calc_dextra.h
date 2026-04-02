@@ -1,24 +1,28 @@
 #pragma once
 #include <cstdio>
 
-#include "helper.h"
-#include "my_queue.h"
-#include "my_stack.h"
+#include "../helper.h"
+#include "../data_structures/queue.h"
+#include "../data_structures/stack.h"
 
-using namespace MyQueue;
 using namespace MyStack;
+using namespace MyQueue;
+
+// калькулятор выражений вида "(123+4)/5-678"
+// происходит конвертация алгоритмом Дейкстры из инфиксной нотации в обратную польскую,
+// затем через стек высчитывается результат выражения
 
 namespace CalcDextra {
     enum {
-        DIGIT = 0,
-        ADD,
-        SUB,
-        MUL,
-        DIV,
-        MOD,
-        OPEN,
-        CLOSE,
-        UNKNOWN
+        DIGIT = 0, // '[0-9]'
+        ADD,       // '+'
+        SUB,       // '-'
+        MUL,       // '*'
+        DIV,       // '/'
+        MOD,       // '%'
+        OPEN,      // '('
+        CLOSE,     // ')'
+        UNKNOWN    // ???
     };
 
     typedef struct {
@@ -52,15 +56,16 @@ namespace CalcDextra {
 
         int p1 = -1, p2 = 0;
 
-        if(type1 == MUL || type1 == DIV || type1 == MOD)     p1 = 2;
+        if (type1 == MUL || type1 == DIV || type1 == MOD)    p1 = 2;
         else if (type1 == ADD || type1 == SUB)               p1 = 1;
 
-        if(type2 == MUL || type2 == DIV || type2 == MOD)     p2 = 2;
+        if (type2 == MUL || type2 == DIV || type2 == MOD)    p2 = 2;
         else if (type2 == ADD || type2 == SUB)               p2 = 1;
 
         return p1 >= p2;
     }
 
+    // алгоритм Дейкстры для перевода из инфиксной в обратнюу польскую
     Queue* dextra(const char* expression) {
         if (expression == nullptr || expression[0] == '\0') return nullptr;
 
@@ -125,15 +130,16 @@ namespace CalcDextra {
         return result;
     }
 
-    double evaluate(const char* expressionInfl) {
-        Queue* expression = dextra(expressionInfl);
-        if (expression == nullptr) return 0;
+    // высчитывание выражения с использованием стека
+    double evaluate(const char* expressionInfix) {
+        Queue* expressionPost = dextra(expressionInfix);
+        if (expressionPost == nullptr) return 0;
         Stack* s = createStack(10, sizeof(Item));
 
         int i = 0;
-        while (!isEmptyQueue(expression)) {
+        while (expressionPost->count > 0) {
             Item cur;
-            removeQueue(expression, &cur);
+            removeQueue(expressionPost, &cur);
             if (cur.type == DIGIT) {
                 pushStack(s, &cur);
             }
@@ -141,12 +147,14 @@ namespace CalcDextra {
                 Item first;
                 if (!popStack(s, &first)) {
                     freeStack(s);
+                    freeQueue(expressionPost);
                     printf("invalid expression\n");
                     return 0;
                 }
                 Item second;
                 if (!popStack(s, &second)) {
                     freeStack(s);
+                    freeQueue(expressionPost);
                     printf("invalid expression\n");
                     return 0;
                 }
@@ -166,7 +174,7 @@ namespace CalcDextra {
         Item result;
         popStack(s, &result);
         freeStack(s);
-        freeQueue(expression);
+        freeQueue(expressionPost);
         return result.value;
     }
 }

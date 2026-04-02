@@ -1,5 +1,6 @@
 #pragma once
 
+// поиск числа Фибоначчи
 namespace Fib {
     int getFibMemoizationUnwrapped(int n, int* dict) {
         if (n == 0) return 0;
