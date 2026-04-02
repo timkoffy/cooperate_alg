@@ -37,8 +37,6 @@ void renderGraph(Graph *g) {
         prevBro[i] = -1;
     }
 
-    Queue *q = createQueue(sizeof(int));
-
     // находим корень
     int root = -1;
     for (int i = 0; i < g->vertCount; i++) {
@@ -54,10 +52,12 @@ void renderGraph(Graph *g) {
         }
     }
 
+    // BFS с заполнением высот каждой вершины
+    Queue *q = createQueue(sizeof(int));
+
     addQueue(q, &root);
     visited[root] = 1;
 
-    // BFS с заполнением высот каждой вершины
     int maxLevel = 0;
     while (q->count > 0) {
         int cur;
@@ -125,6 +125,7 @@ void renderGraph(Graph *g) {
         }
     }
 
+    // считаем размеры буфера + инициализируем
     int w = 0;
     for (int i = 0; i < g->vertCount; i++) {
         if (offsets[i] * 3 > w) w = offsets[i] * 3;
