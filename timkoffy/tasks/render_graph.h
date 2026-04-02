@@ -125,13 +125,13 @@ void renderGraph(Graph *g) {
         }
     }
 
-    int h = 0;
     int w = 0;
     for (int i = 0; i < g->vertCount; i++) {
         if (offsets[i] * 3 > w) w = offsets[i] * 3;
     }
     w += 3;
-    h = maxLevel * 4 + 4;
+
+    int h = maxLevel * 4 + 4;
 
     char **buffer = (char**)malloc(sizeof(char*) * h);
     for (int i = 0; i < h; i++) {
