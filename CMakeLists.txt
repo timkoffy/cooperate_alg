@@ -21,5 +21,5 @@ add_executable(algorithms-and-data-structures main.cpp
         timkoffy/tasks/count_substrings_with_hashmap.h
         timkoffy/tasks/find_cycle_graph.h
         timkoffy/tasks/render_graph.h
-        timkoffy/tasks/negative_pow.h
-        timkoffy/tasks/print_unique_chars.h)
+        timkoffy/tasks/print_unique_chars.h
+        timkoffy/data_structures/LRUCache.h)
