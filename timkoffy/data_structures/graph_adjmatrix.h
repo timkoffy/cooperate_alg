@@ -212,7 +212,7 @@ namespace MyGraphAdjMatrix {
         return 0;
     }
 
-    int tryFindShortestPath(Graph *g, int start, int target) {
+    int tryFindShortestPathFordBellman(Graph *g, int start, int target) {
         if (start < 0 || start >= g->vertCount || target < 0 || target >= g->vertCount)
             return 0;
 
@@ -266,6 +266,54 @@ namespace MyGraphAdjMatrix {
         free(dist);
         return 1;
     }
+
+    int **findShortestPathsFloydWarshall(Graph *g) {
+        int **matrix = (int**)malloc(g->vertCount * sizeof(int*));
+        for (int i = 0; i < g->vertCount; i++) {
+            matrix[i] = (int*)malloc(g->vertCount * sizeof(int));
+            for (int j = 0; j < g->vertCount; j++) {
+                if (i == j) {
+                    matrix[i][j] = 0;
+                    continue;
+                }
+                if (g->matrix[i][j] == 0) {
+                    matrix[i][j] = INT_MAX;
+                    continue;
+                }
+                matrix[i][j] = g->matrix[i][j];
+            }
+        }
+
+        for (int k = 0; k < g->vertCount; k++) {
+
+            for (int i = 0; i < g->vertCount; i++) {
+                for (int j = 0; j < g->vertCount; j++) {
+                    if (matrix[i][j] == INT_MAX) {
+                        printf("? ");
+                        continue;
+                    }
+                    printf("%d ", matrix[i][j]);
+                }
+                printf("\n");
+            }
+            printf("\n");
+
+            int update = 0;
+            for (int i = 0; i < g->vertCount; i++) {
+                for (int j = 0; j < g->vertCount; j++) {
+                    if (matrix[i][k] != INT_MAX && matrix[k][j] != INT_MAX
+                        && matrix[i][k] + matrix[k][j] < matrix[i][j]) {
+                        update = 1;
+                        matrix[i][j] = matrix[i][k] + matrix[k][j];
+                    }
+                }
+            }
+            if (!update) break;
+        }
+
+        return matrix;
+    }
+
 
     void printGraph(Graph *g) {
         printf("    ");
