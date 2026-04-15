@@ -14,9 +14,54 @@
         }
     }
 
+    void removeAllCycles(Graph *g) {
+        int *visited = (int*)calloc(g->vertCount, sizeof(int));
+        int *prev = (int*)malloc(g->vertCount * sizeof(int));
+
+        for (int i = 0; i < g->vertCount; i++) {
+            prev[i] = -1;
+        }
+
+        Queue *q = createQueue(sizeof(int));
+
+        int start = 0;
+        addQueue(q, &start);
+
+        while (q->count > 0) {
+            int cur;
+            removeQueue(q, &cur);
+
+            for (int i = 0; i < g->vertCount; i++) {
+                if (i == cur) {
+                    continue;
+                }
+
+                if (g->matrix[cur][i] == 0) {
+                    continue;
+                }
+
+                if (i == prev[cur]) {
+                    tryDeleteEdge(g, cur, i);
+                    continue;
+                }
+
+                if (visited[i] == 1) {
+                    tryDeleteUnorderedEdge(g, cur, i);
+                    continue;
+                }
+
+                addQueue(q, &i);
+                prev[i] = cur;
+                visited[i] = 1;
+            }
+        }
+    }
+
     // вывод ориентированного графа-дерева
     void renderGraph(Graph *g) {
         if (g == nullptr) return;
+
+        removeAllCycles(g);
 
         int *levels = (int*)calloc(g->vertCount, sizeof(int));
         int *parent = (int*)malloc(g->vertCount * sizeof(int));
@@ -36,6 +81,8 @@
             parent[i] = -1;
             prevBro[i] = -1;
         }
+
+
 
         // находим корень
         int root = -1;
@@ -59,48 +106,51 @@
             free(offsets);
             free(prevBro);
             free(visited);
-            printf("ALARM CYCLE !! ALARM CYCLE !! ALARM CYCLE !!\n");
+            printf("AAALARM CYCLE !! ALARM CYCLE !! ALARM CYCLE !!\n");
             return;
         }
 
         // BFS с заполнением высот каждой вершины
-        Queue *q = createQueue(sizeof(int));
-
-        addQueue(q, &root);
-        visited[root] = 1;
-
         int maxLevel = 0;
-        while (q->count > 0) {
-            int cur;
-            removeQueue(q, &cur);
-            int lastBro = -1;
-            for (int i = 0; i < g->vertCount; i++) {
-                if (i == cur) continue;
-                if (g->matrix[cur][i] != 0) {
-                    if (!visited[i]) {
-                        addQueue(q, &i);
-                        visited[i] = 1;
+        {
+            Queue *q = createQueue(sizeof(int));
 
-                        parent[i] = cur;
-                        prevBro[i] = lastBro;
-                        lastBro = i;
+            addQueue(q, &root);
+            visited[root] = 1;
 
-                        levels[i] = levels[cur] + 1;
-                        maxLevel = levels[i] > maxLevel ? levels[i] : maxLevel;
-                    }
-                    else {
-                        free(levels);
-                        free(parent);
-                        free(widths);
-                        free(offsets);
-                        free(prevBro);
-                        freeQueue(q);
-                        free(visited);
-                        printf("ALARM CYCLE !! ALARM CYCLE !! ALARM CYCLE !!\n");
-                        return;
+            while (q->count > 0) {
+                int cur;
+                removeQueue(q, &cur);
+                int lastBro = -1;
+                for (int i = 0; i < g->vertCount; i++) {
+                    if (i == cur) continue;
+                    if (g->matrix[cur][i] != 0) {
+                        if (!visited[i]) {
+                            addQueue(q, &i);
+                            visited[i] = 1;
+
+                            parent[i] = cur;
+                            prevBro[i] = lastBro;
+                            lastBro = i;
+
+                            levels[i] = levels[cur] + 1;
+                            maxLevel = levels[i] > maxLevel ? levels[i] : maxLevel;
+                        }
+                        else {
+                            free(levels);
+                            free(parent);
+                            free(widths);
+                            free(offsets);
+                            free(prevBro);
+                            freeQueue(q);
+                            free(visited);
+                            printf("ALARM CYCLE !! ALARM CYCLE !! ALARM CYCLE !!\n");
+                            return;
+                        }
                     }
                 }
             }
+            freeQueue(q);
         }
 
         // заполняем ширины
@@ -169,7 +219,8 @@
             col += widths[i] * 4 / 2;
 
             // buffer[row + 3][col-1] = '[';
-            buffer[row + 3][col] = i + 'A';
+            // buffer[row + 3][col] = i + 'A';
+            buffer[row + 3][col] = i + 1 + '0';
             // buffer[row + 3][col+1] = ']';
 
             if (i == root) continue;
@@ -218,5 +269,4 @@
         free(offsets);
         free(prevBro);
         free(visited);
-        freeQueue(q);
     }

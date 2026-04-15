@@ -318,7 +318,8 @@ namespace MyGraphAdjMatrix {
     void printGraph(Graph *g) {
         printf("    ");
         for (int i = 0; i < g->vertCount; i++) {
-            printf("%c ", i + 'A');
+            // printf("%c ", i + 'A');
+            printf("%i ", i + 1);
         }
         printf("\n");
 
@@ -329,7 +330,8 @@ namespace MyGraphAdjMatrix {
         printf("\n");
 
         for (int i = 0; i < g->vertCount; i++) {
-            printf("%c — ", i + 'A');
+            // printf("%c — ", i + 'A');
+            printf("%i — ", i + 1);
             for (int j = 0; j < g->vertCount; j++) {
                 if (g->matrix[i][j] == 0) {
                     printf(". ");
