@@ -1,3 +1,7 @@
+#include <csignal>
+#include <unistd.h>
+
+#include "timkoffy/data_structures/binary_tree.h"
 #include "timkoffy/data_structures/bloom_filter.h"
 #include "timkoffy/data_structures/graph_adjmatrix.h"
 #include "timkoffy/tasks/A-star_field_visualization.h"
@@ -66,20 +70,22 @@ int calculateSum(int *arr, int start, int end) {
 }
 
 void printSubArray(int *arr, int start, int end) {
-    for (int i = start; i <= end; i++) {
+    for (int i = start; i < end; i++) {
         printf("%d ", arr[i]);
     } printf("\n");
 }
 
 int maxSum(int *arr, int size) {
     int left = 0;
+
     int maxSum = 0;
     for (int i = 0; i < size; i++) {
         if (maxSum > arr[i]) maxSum = arr[i];
     }
+
     for (int right = 0; right < size; right++) {
         int curSum = calculateSum(arr, left, right);
-        printSubArray(arr, left, right);
+        printSubArray(arr, left, right + 1);
 
         while (curSum < maxSum && left < right) {
             curSum -= arr[left];
@@ -91,13 +97,85 @@ int maxSum(int *arr, int size) {
     return maxSum;
 }
 
-// 198
-// 99, 99, -10000, 200
-int main() {
-    int size = 6;
-    int arr[size] = {0, 0, 99, 99, -2, 200};
+int maxSu(int *arr, int size) {
+    int res = arr[0];
+    int maxSum = arr[0];
 
-    printf("%d", maxSum(arr, size));
+    int left = 0;
+    int right = 1;
+    int tmpLeft = 0;
+    for (int i = 1; i < size; i++) {
+        res += arr[i];
+
+        if (res < arr[i]) {
+            tmpLeft = i;
+            res = arr[i];
+        }
+
+        if (res > maxSum) {
+            left = tmpLeft;
+            right = i + 1;
+            maxSum = res;
+        }
+    }
+
+    printSubArray(arr, left, right);
+    return maxSum;
+}
+
+// таска на дз
+
+// вход: массив строк
+// выход: массив групп строк анаграмм
+
+// 1. для каждого слова мапа (символ: колво встреч)
+// 2. для каждого слова проверяем мапы с каждой мапой последующих слов
+// 3. если длина различна смысла сравнивать нет
+
+
+
+// таска
+
+// бинарное дерево
+// обходы: прямой обход, обратный, симметричный
+
+int main() {
+    runAStar();
+
+    // using namespace MyBinaryTree;
+    // Tree *tree = initTree();
+    //
+    // Node *leftChild0 = addLeftChild(tree->root, 2);
+    // Node *rightChild0 = addRightChild(tree->root, 3);
+    //
+    // Node *leftChild1 = addLeftChild(leftChild0, 4);
+    // Node *rightChild1  = addRightChild(leftChild0, 5);
+    //
+    // Node *leftChild2 = addLeftChild(leftChild1, 8);
+    // Node *rightChild2  = addRightChild(leftChild1, 9);
+    //
+    // Node *leftChild01 = addLeftChild(rightChild0, 6);
+    // Node *rightChild01  = addRightChild(rightChild0, 7);
+    // //
+    // Node *rightChild3 = addRightChild(rightChild2, 10);
+    //
+    // addRightChild(rightChild3, 11);
+    //
+    //
+    // printf("%d", findHeightUnwrapped(tree->root));
+
+    // straightSearch(tree, tree->root);
+
+    //
+    // reversedSearch(tree->root);
+
+
+
+
+
+    // int arr[] = {-100, 99, 199, -10000, 200};
+    // int size = sizeof(arr) / sizeof(int);
+    // printf("%d", maxSu(arr, size));
 
     // char *str = "aaaaa";
     //
@@ -105,14 +183,4 @@ int main() {
     //
     // int res = getUniquePattern(str);
     // printf("%d", res);
-
-    // int h = 20;
-    // int w = 30;
-    // Field *field = initField(h, w);
-    //
-    // randomizeWalls(field);
-    //
-    // loopPathFind(field, 0, 0, w-1, h-1);
-    //
-    // freeField(field);
 }

@@ -53,7 +53,7 @@ void randomizeWalls(Field *field) {
 #define COLOR_BLUE    "\033[44m"
 
 void printField(Field *field, Dot *cur, int startX, int startY, int targetX, int targetY, int **closedSet, int **openSet, int **pathMap) {
-    system("sleep 0.006");
+    system("sleep 0.03");
     printf("\033[2J\033[H");
     for (int i = 0; i < field->height; i++) {
         for (int j = 0; j < field->width; j++) {
@@ -115,13 +115,36 @@ int **reconstructPath(Field *field, int startX, int startY, Dot *target) {
     return pathMap;
 }
 
+Dot **saveDot(Dot **allDots, int *dotsCount, int *capacityAllDots, Dot *dot) {
+    allDots[(*dotsCount)++] = dot;
+    if (*dotsCount + 1 > *capacityAllDots) {
+        *capacityAllDots *= 2;
+        Dot **newAllDots = (Dot**)realloc(allDots, *capacityAllDots * sizeof(Dot*));
+        return newAllDots;
+    }
+    return allDots;
+}
+
+Dot *createDot(int x, int y, int g, int targetX, int targetY, Dot ***allDots, int *dotsCount, int *capacityAllDots, Dot *prev) {
+    Dot *dot = (Dot*)malloc(sizeof(Dot));
+    dot->x = x;
+    dot->y = y;
+    dot->g = g;
+    dot->h = h(x, y, targetX, targetY);
+    dot->f = dot->g + dot->h;
+    dot->prev = prev;
+    *allDots = saveDot(*allDots, dotsCount, capacityAllDots, dot);
+    return dot;
+}
+
 void loopPathFind(Field *field, int startX, int startY, int targetX, int targetY) {
     int **closedSet = (int**)malloc(field->height * sizeof(int*));
     int **openSetForPrint = (int**)malloc(field->height * sizeof(int*));
     int **gMatrix = (int**)malloc(field->height * sizeof(int*));
 
-    Dot** allDots = (Dot**)malloc(10000 * sizeof(Dot*));
-    int nodeCount = 0;
+    int capacityAllDots = 10;
+    Dot** allDots = (Dot**)malloc(capacityAllDots * sizeof(Dot*));
+    int dotsCount = 0;
 
     for (int i = 0; i < field->height; i++) {
         closedSet[i] = (int*)calloc(field->width, sizeof(int));
@@ -135,20 +158,16 @@ void loopPathFind(Field *field, int startX, int startY, int targetX, int targetY
     using namespace MyMinHeap;
     MinHeap *openSet = initMinHeap(sizeof(Dot*), compare);
 
-    Dot* start = (Dot*)malloc(sizeof(Dot));
-    start->x = startX;
-    start->y = startY;
-    start->g = 0;
-    start->h = h(startX, startY, targetX, targetY);
-    start->f = start->g + start->h;
-    start->prev = nullptr;
-    allDots[nodeCount++] = start;
+    Dot* start = createDot(startX, startY,
+                    0,
+                    targetX, targetY,
+                    &allDots, &dotsCount, &capacityAllDots,
+                    nullptr);
 
     gMatrix[startY][startX] = 0;
     pushMinHeap(openSet, &start);
 
     Dot* cur = nullptr;
-    int pathExists = 0;
 
     while (openSet->count > 0) {
         popMinHeap(openSet, &cur);
@@ -168,7 +187,6 @@ void loopPathFind(Field *field, int startX, int startY, int targetX, int targetY
         closedSet[cur->y][cur->x] = 1;
 
         if (cur->x == targetX && cur->y == targetY) {
-            pathExists = 1;
             break;
         }
 
@@ -196,14 +214,11 @@ void loopPathFind(Field *field, int startX, int startY, int targetX, int targetY
                     continue;
                 }
 
-                Dot* neigh = (Dot*)malloc(sizeof(Dot));
-                neigh->x = neighX;
-                neigh->y = neighY;
-                neigh->g = tentativeG;
-                neigh->h = h(neighX, neighY, targetX, targetY);
-                neigh->f = neigh->g + neigh->h;
-                neigh->prev = cur;
-                allDots[nodeCount++] = neigh;
+                Dot* neigh = createDot(neighX, neighY,
+                    tentativeG,
+                    targetX, targetY,
+                    &allDots, &dotsCount, &capacityAllDots,
+                    cur);
 
                 openSetForPrint[neighY][neighX] = 1;
                 pushMinHeap(openSet, &neigh);
@@ -220,11 +235,10 @@ void loopPathFind(Field *field, int startX, int startY, int targetX, int targetY
     free(openSetForPrint);
     free(gMatrix);
 
-    for (int i = 0; i < nodeCount; i++) {
+    for (int i = 0; i < dotsCount; i++) {
         free(allDots[i]);
     }
     free(allDots);
-    freeMinHeap(openSet);
 }
 
 void freeField(Field *field) {
@@ -235,12 +249,7 @@ void freeField(Field *field) {
     free(field);
 }
 
-Field *field = nullptr;
-
 void cleanup(int sig) {
-    if (field) {
-        freeField(field);
-    }
     system("clear");
     printf("Succesfully complete!\n");
     exit(0);
@@ -252,7 +261,7 @@ void runAStar() {
 
     int h = win.ws_row - 1;
     int w = win.ws_col / 2;
-    field = initField(h, w);
+    Field *field = initField(h, w);
 
     signal(SIGINT, cleanup);
     signal(SIGTSTP, cleanup);
