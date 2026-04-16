@@ -1,4 +1,7 @@
 #pragma once
+
+#include <sys/ioctl.h>
+
 #include "../data_structures/min_heap.h"
 
 typedef struct {
@@ -50,7 +53,7 @@ void randomizeWalls(Field *field) {
 #define COLOR_BLUE    "\033[44m"
 
 void printField(Field *field, Dot *cur, int startX, int startY, int targetX, int targetY, int **closedSet, int **openSet, int **pathMap) {
-    system("sleep 0.06");
+    system("sleep 0.006");
     printf("\033[2J\033[H");
     for (int i = 0; i < field->height; i++) {
         for (int j = 0; j < field->width; j++) {
@@ -86,7 +89,7 @@ void printField(Field *field, Dot *cur, int startX, int startY, int targetX, int
 
         } printf("\n");
     }
-    printf("cur.g = %d, cur.h = %d, cur.f = %d\n", cur->g, cur->h, cur->f);
+    // printf("cur.g = %d, cur.h = %d, cur.f = %d\n", cur->g, cur->h, cur->f);
 }
 
 int compare(const void *a, const void *b) {
@@ -230,4 +233,33 @@ void freeField(Field *field) {
     }
     free(field->wallData);
     free(field);
+}
+
+Field *field = nullptr;
+
+void cleanup(int sig) {
+    if (field) {
+        freeField(field);
+    }
+    system("clear");
+    printf("Succesfully complete!\n");
+    exit(0);
+}
+
+void runAStar() {
+    winsize win{};
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, &win);
+
+    int h = win.ws_row - 1;
+    int w = win.ws_col / 2;
+    field = initField(h, w);
+
+    signal(SIGINT, cleanup);
+    signal(SIGTSTP, cleanup);
+
+    while (true) {
+        system("clear");
+        randomizeWalls(field);
+        loopPathFind(field, 0, 0, w-1, h-1);
+    }
 }
