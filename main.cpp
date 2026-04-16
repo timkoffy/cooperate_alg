@@ -52,7 +52,53 @@ int getUniquePattern(char *str) {
     return maxLen;
 }
 
+
+
+
+
+
+int calculateSum(int *arr, int start, int end) {
+    int res = 0;
+    for (int i = start; i <= end; i++) {
+        res += arr[i];
+    }
+    return res;
+}
+
+void printSubArray(int *arr, int start, int end) {
+    for (int i = start; i <= end; i++) {
+        printf("%d ", arr[i]);
+    } printf("\n");
+}
+
+int maxSum(int *arr, int size) {
+    int left = 0;
+    int maxSum = 0;
+    for (int i = 0; i < size; i++) {
+        if (maxSum > arr[i]) maxSum = arr[i];
+    }
+    for (int right = 0; right < size; right++) {
+        int curSum = calculateSum(arr, left, right);
+        printSubArray(arr, left, right);
+
+        while (curSum < maxSum && left < right) {
+            curSum -= arr[left];
+            left++;
+        }
+
+        maxSum = maxSum < curSum ? curSum : maxSum;
+    }
+    return maxSum;
+}
+
+// 198
+// 99, 99, -10000, 200
 int main() {
+    int size = 6;
+    int arr[size] = {0, 0, 99, 99, -2, 200};
+
+    printf("%d", maxSum(arr, size));
+
     // char *str = "aaaaa";
     //
     // printf("%s\n", str);
@@ -60,13 +106,13 @@ int main() {
     // int res = getUniquePattern(str);
     // printf("%d", res);
 
-    int h = 20;
-    int w = 30;
-    Field *field = initField(h, w);
-
-    randomizeWalls(field);
-
-    loopPathFind(field, 0, 0, w-1, h-1);
-
-    freeField(field);
+    // int h = 20;
+    // int w = 30;
+    // Field *field = initField(h, w);
+    //
+    // randomizeWalls(field);
+    //
+    // loopPathFind(field, 0, 0, w-1, h-1);
+    //
+    // freeField(field);
 }
