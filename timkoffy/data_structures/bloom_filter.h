@@ -10,6 +10,23 @@ namespace MyBloomFilter {
         int sizeByte;
     } BloomFilter;
 
+    BloomFilter *createBloomFilter(int n) {
+        BloomFilter *bf = (BloomFilter*)malloc(sizeof(BloomFilter));
+        if (bf == nullptr) return nullptr;
+        bf->sizeBit = n * 3;
+        // 10 + 7 / 8 = 2
+        // 15 + 7 / 8 = 2
+        // 16 + 7 / 8 = 2
+        // 17 + 7 / 8 = 3
+        bf->sizeByte = (bf->sizeBit + 7) / 8;
+        bf->byteArray = (unsigned char*)calloc(bf->sizeByte, sizeof(unsigned char));
+        if (bf->byteArray == nullptr) {
+            free(bf);
+            return nullptr;
+        }
+        return bf;
+    }
+
     void setBit(BloomFilter *bf, int index) {
         int byteIndex = index / 8;
         int bitIndex = index % 8;
@@ -22,27 +39,10 @@ namespace MyBloomFilter {
         return (bf->byteArray[byteIndex] >> bitIndex) & 1;
     }
 
-    BloomFilter *createBloomFilter(int sizeBit) {
-        BloomFilter *bf = (BloomFilter*)malloc(sizeof(BloomFilter));
-        if (bf == nullptr) return nullptr;
-        bf->sizeBit = sizeBit;
-        // 10 + 7 / 8 = 2
-        // 15 + 7 / 8 = 2
-        // 16 + 7 / 8 = 2
-        // 17 + 7 / 8 = 3
-        bf->sizeByte = (sizeBit + 7) / 8;
-        bf->byteArray = (unsigned char*)calloc(bf->sizeByte, sizeof(unsigned char));
-        if (bf->byteArray == nullptr) {
-            free(bf);
-            return nullptr;
-        }
-        return bf;
-    }
-
     void addToBloomFilter(BloomFilter *bf, char *key) {
-        unsigned int hash1 = Helper::hashCodeFirst(key, 5381);
-        unsigned int hash2 = Helper::hashCodeFirst(key, 5381 + 101);
-        unsigned int hash3 = Helper::hashCodeFirst(key, 5381 + 203);
+        unsigned int hash1 = Helper::hashCode(key, 5381);
+        unsigned int hash2 = Helper::hashCode(key, 5381 + 101);
+        unsigned int hash3 = Helper::hashCode(key, 5381 + 203);
 
         int index1 = hash1 % bf->sizeBit;
         int index2 = hash2 % bf->sizeBit;
@@ -54,9 +54,9 @@ namespace MyBloomFilter {
     }
 
     int containsBloomFilter(BloomFilter *bf, char *key) {
-        unsigned int hash1 = Helper::hashCodeFirst(key, 5381);
-        unsigned int hash2 = Helper::hashCodeFirst(key, 5381 + 101);
-        unsigned int hash3 = Helper::hashCodeFirst(key, 5381 + 203);
+        unsigned int hash1 = Helper::hashCode(key, 5381);
+        unsigned int hash2 = Helper::hashCode(key, 5381 + 101);
+        unsigned int hash3 = Helper::hashCode(key, 5381 + 203);
 
         int index1 = hash1 % bf->sizeBit;
         int index2 = hash2 % bf->sizeBit;

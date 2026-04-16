@@ -1,44 +1,72 @@
-// реаллок файл подкачки(перезапись)
-
+#include "timkoffy/data_structures/bloom_filter.h"
 #include "timkoffy/data_structures/graph_adjmatrix.h"
-// #include "timkoffy/data_structures/LRUCache.h"
+#include "timkoffy/tasks/A-star_field_visualization.h"
 #include "timkoffy/tasks/render_graph.h"
 
-// массив целых полож чисел. найти треугольник, который обладает наибольшим периметром
+void clearFlags(char *exists, char *str, int i, int j) {
+    for (int k = i; k <= j; k++) {
+        char ch = str[k];
+        exists[(int)ch] = 0;
+    }
+}
 
-// из всех палочек необходимо получить все возможные вариации треугольника включая все вариации треугольников
-// каждая палочка уникальна
+void printSubstr(char *str, int start, int end) {
+    for (int i = start; i <= end; i++) {
+        printf("%c", str[i]);
+    }
+    printf("\n");
+}
 
+void printExists(char *exists) {
+    for (int i = 'a'; i < 'z'; i++) {
+        printf("%c ", i);
+    }
+    printf("\n");
+    for (int i = 'a'; i < 'z'; i++) {
+        printf("%i ", exists[i]);
+    }
+    printf("\n");
+}
+
+int getUniquePattern(char *str) {
+    char *exists = (char*)calloc(256, sizeof(char));
+
+    int maxLen = 0;
+    int left = 0;
+    for (int right = 0; str[right] != '\0'; right++) {
+        char rightChar = str[right];
+        while (exists[rightChar] == 1 && left < right) {
+            char leftChar = str[left];
+            exists[leftChar] = 0;
+            left++;
+        }
+
+        exists[(int)rightChar] = 1;
+
+        int subLen = right - left + 1;
+        maxLen = maxLen < subLen ? subLen : maxLen;
+        printSubstr(str, left, right);
+    }
+
+    free(exists);
+    return maxLen;
+}
 
 int main() {
-    Graph *g = createGraph(7);
+    // char *str = "aaaaa";
+    //
+    // printf("%s\n", str);
+    //
+    // int res = getUniquePattern(str);
+    // printf("%d", res);
 
-    tryAddUnorderedEdge(g, 0, 1);
-    tryAddUnorderedEdge(g, 0, 2);
-    tryAddUnorderedEdge(g, 1, 2);
-    tryAddUnorderedEdge(g, 1, 3);
-    tryAddUnorderedEdge(g, 3, 4);
-    tryAddUnorderedEdge(g, 4, 5);
-    tryAddUnorderedEdge(g, 5, 6);
-    tryAddUnorderedEdge(g, 6, 0);
+    int h = 20;
+    int w = 30;
+    Field *field = initField(h, w);
 
-    printGraph(g);
+    randomizeWalls(field);
 
-    removeAllCycles(g);
+    loopPathFind(field, 0, 0, w-1, h-1);
 
-    printGraph(g);
-
-    renderGraph(g);
-
-    // auto lRUCache = LRU::LRUCache(2);
-    // lRUCache.put(1, 1); // cache is {1=1}
-    // lRUCache.put(2, 2); // cache is {1=1, 2=2}
-    // lRUCache.get(1);    // return 1
-    // lRUCache.put(3, 3); // LRU key was 2, evicts key 2, cache is {1=1, 3=3}
-    // lRUCache.get(2);    // returns -1 (not found)
-    // lRUCache.put(4, 4); // LRU key was 1, evicts key 1, cache is {4=4, 3=3}
-    // lRUCache.get(1);    // return -1 (not found)
-    // lRUCache.get(3);    // return 3
-    // lRUCache.get(4);    // return 4
-    // lRUCache.print();
+    freeField(field);
 }

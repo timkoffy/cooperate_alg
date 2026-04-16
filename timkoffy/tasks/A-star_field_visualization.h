@@ -112,23 +112,12 @@ int **reconstructPath(Field *field, int startX, int startY, Dot *target) {
     return pathMap;
 }
 
-// Dot **reconstructPath(int startX, int startY, Dot *target) {
-//     Dot **path = (Dot**)malloc((target->g + 1) * sizeof(Dot*));
-//     Dot *cur = target;
-//     int i = 0;
-//     while (cur != nullptr) {
-//         path[i] = cur;
-//         cur = cur->prev;
-//     }
-//     return path;
-// }
-
 void loopPathFind(Field *field, int startX, int startY, int targetX, int targetY) {
     int **closedSet = (int**)malloc(field->height * sizeof(int*));
     int **openSetForPrint = (int**)malloc(field->height * sizeof(int*));
     int **gMatrix = (int**)malloc(field->height * sizeof(int*));
 
-    Dot** allNodes = (Dot**)malloc(10000 * sizeof(Dot*));
+    Dot** allDots = (Dot**)malloc(10000 * sizeof(Dot*));
     int nodeCount = 0;
 
     for (int i = 0; i < field->height; i++) {
@@ -150,7 +139,7 @@ void loopPathFind(Field *field, int startX, int startY, int targetX, int targetY
     start->h = h(startX, startY, targetX, targetY);
     start->f = start->g + start->h;
     start->prev = nullptr;
-    allNodes[nodeCount++] = start;
+    allDots[nodeCount++] = start;
 
     gMatrix[startY][startX] = 0;
     pushMinHeap(openSet, &start);
@@ -211,7 +200,7 @@ void loopPathFind(Field *field, int startX, int startY, int targetX, int targetY
                 neigh->h = h(neighX, neighY, targetX, targetY);
                 neigh->f = neigh->g + neigh->h;
                 neigh->prev = cur;
-                allNodes[nodeCount++] = neigh;
+                allDots[nodeCount++] = neigh;
 
                 openSetForPrint[neighY][neighX] = 1;
                 pushMinHeap(openSet, &neigh);
@@ -229,9 +218,9 @@ void loopPathFind(Field *field, int startX, int startY, int targetX, int targetY
     free(gMatrix);
 
     for (int i = 0; i < nodeCount; i++) {
-        free(allNodes[i]);
+        free(allDots[i]);
     }
-    free(allNodes);
+    free(allDots);
     freeMinHeap(openSet);
 }
 
