@@ -134,14 +134,19 @@ namespace AnagramFilter {
 
 
 
-
+    char toLower(char ch) {
+        if (ch >= 'A' && ch <= 'Z') {
+            return ch + ('a' - 'A');
+        }
+        return ch;
+    }
 
     int hashCode(const char *str, int *len) {
         int res = 0;
         int i = 0;
         // "abc\0"
         while (str[i] != '\0') {
-            res += (int)str[i++] * 1548;
+            res += (int)toLower(str[i++]) * 1548;
         }
         *len = i;
         return res;
@@ -162,7 +167,7 @@ namespace AnagramFilter {
 
             std::unordered_map<char, int> map;
             for (int j = 0; allStr[i][j] != '\0'; j++) {
-                map[allStr[i][j]]++;
+                map[toLower( allStr[i][j] )]++;
             }
 
             maps[i] = map;
@@ -190,7 +195,7 @@ namespace AnagramFilter {
                 // проверка на анаграмму
                 int equal = 1;
                 for (int curCharIndex = 0; allStr[strIndex][curCharIndex] != '\0'; curCharIndex++) {
-                    char ch = allStr[strIndex][curCharIndex];
+                    char ch = toLower( allStr[strIndex][curCharIndex] );
                     if (maps[strIndex][ch] != maps[cmpStrIndex][ch]) {
                         equal = 0;
                         break;
@@ -237,18 +242,18 @@ namespace AnagramFilter {
         free(groupLengths);
     }
 
-    char **downCase(char **allStr, int size) {
-        char **res = (char**)malloc(sizeof(char*) * size);
-        for (int i = 0; i < size; i++) {
-            res[i] = strdup(allStr[i]);
-            for (int j = 0; allStr[i][j] != '\0'; j++) {
-                if (allStr[i][j] >= 'A' && allStr[i][j] <= 'Z') {
-                    res[i][j] = allStr[i][j] + ('a' - 'A');
-                }
-            }
-        }
-        return res;
-    }
+    // char **downCase(char **allStr, int size) {
+    //     char **res = (char**)malloc(sizeof(char*) * size);
+    //     for (int i = 0; i < size; i++) {
+    //         res[i] = strdup(allStr[i]);
+    //         for (int j = 0; allStr[i][j] != '\0'; j++) {
+    //             if (allStr[i][j] >= 'A' && allStr[i][j] <= 'Z') {
+    //                 res[i][j] = allStr[i][j] + ('a' - 'A');
+    //             }
+    //         }
+    //     }
+    //     return res;
+    // }
 
     void run() {
         int strCount = 6;
@@ -260,8 +265,6 @@ namespace AnagramFilter {
         allStr[4] = strdup("nat");
         allStr[5] = strdup("bat");
 
-        char **allStrDownCase = downCase(allStr, strCount);
-
         for (int i = 0; i < strCount; i++) {
             printf("%s", allStr[i]);
             if (i < strCount - 1) printf(", ");
@@ -269,7 +272,7 @@ namespace AnagramFilter {
 
         int groupCount;
         int* groupLengths;
-        char*** res = findAnagrams(allStrDownCase, strCount, &groupCount, &groupLengths);
+        char*** res = findAnagrams(allStr, strCount, &groupCount, &groupLengths);
 
         for (int i = 0; i < groupCount; i++) {
             printf("%d) ", i + 1);
