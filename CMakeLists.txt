@@ -24,4 +24,8 @@ add_executable(algorithms-and-data-structures main.cpp
         timkoffy/tasks/print_unique_chars.h
         timkoffy/data_structures/LRUCache.h
         timkoffy/data_structures/min_heap.h
-        timkoffy/tasks/A-star_field_visualization.h)
+        timkoffy/tasks/A-star_field_visualization.h
+        timkoffy/data_structures/binary_tree.h
+        timkoffy/tasks/max_sum_subarray.h
+        timkoffy/tasks/max_substr_w_unique_chars.h
+        timkoffy/tasks/anagramm_filter.h)
