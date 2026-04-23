@@ -126,6 +126,17 @@ namespace AnagramFilter {
     //     int hashIndex = key % (hm->buckets->count + 1);
     //     insertArray(hm->buckets, &value, hashIndex);
     // }
+    //
+    // int hashCode(const char *str, int *len) {
+    //     int res = 0;
+    //     int i = 0;
+    //     // "abc\0"
+    //     while (str[i] != '\0') {
+    //         res += (int)toLower(str[i++]) * 1548;
+    //     }
+    //     *len = i;
+    //     return res;
+    // }
 
 
 
@@ -133,6 +144,9 @@ namespace AnagramFilter {
 
 
 
+
+
+    // task yo
 
     char toLower(char ch) {
         if (ch >= 'A' && ch <= 'Z') {
@@ -141,42 +155,36 @@ namespace AnagramFilter {
         return ch;
     }
 
-    int hashCode(const char *str, int *len) {
-        int res = 0;
-        int i = 0;
-        // "abc\0"
-        while (str[i] != '\0') {
-            res += (int)toLower(str[i++]) * 1548;
-        }
-        *len = i;
-        return res;
-    }
-
-    // task yo
-
     char ***findAnagrams(char **allStr, int strCount, int* groupCount, int** groupLengths) {
         int *hashes = (int*)malloc(sizeof(int) * strCount);
         int *lengths = (int*)malloc(sizeof(int) * strCount);
         int *checked = (int*)calloc(strCount, sizeof(int));
         std::vector<std::unordered_map<char, int>> maps(strCount);
 
+        // заполняем массивы
         for (int i = 0; i < strCount; i++) {
-            int len;
-            hashes[i] = hashCode(allStr[i], &len);
-            lengths[i] = len;
-
+            int hash = 0;
+            int j = 0;
             std::unordered_map<char, int> map;
-            for (int j = 0; allStr[i][j] != '\0'; j++) {
-                map[toLower( allStr[i][j] )]++;
+
+            while (allStr[i][j] != '\0') {
+                char ch = toLower(allStr[i][j]);
+                hash += ch * 1548;
+                map[ch]++;
+                j++;
             }
 
+            hashes[i] = hash;
+            lengths[i] = j;
             maps[i] = map;
         }
 
+        // инициализация финального массива групп анаграмм
         char*** res = (char***)malloc(sizeof(char**) * strCount);
         *groupLengths = (int*)malloc(sizeof(int) * strCount);
         *groupCount = 0;
 
+        // проверка всех строк
         for (int strIndex = 0; strIndex < strCount; strIndex++) {
             if (checked[strIndex]) continue;
 
@@ -185,7 +193,7 @@ namespace AnagramFilter {
             anagramGroup[0] = allStr[strIndex];
             int anagramCount = 1;
 
-            // проверка всех следующих строк
+            // проверка всех следующих строк после текущей
             for (int cmpStrIndex = strIndex + 1; cmpStrIndex < strCount; cmpStrIndex++) {
                 // шкип всего что очевидно не подходит
                 if (checked[cmpStrIndex]) continue;
@@ -241,19 +249,6 @@ namespace AnagramFilter {
         free(res);
         free(groupLengths);
     }
-
-    // char **downCase(char **allStr, int size) {
-    //     char **res = (char**)malloc(sizeof(char*) * size);
-    //     for (int i = 0; i < size; i++) {
-    //         res[i] = strdup(allStr[i]);
-    //         for (int j = 0; allStr[i][j] != '\0'; j++) {
-    //             if (allStr[i][j] >= 'A' && allStr[i][j] <= 'Z') {
-    //                 res[i][j] = allStr[i][j] + ('a' - 'A');
-    //             }
-    //         }
-    //     }
-    //     return res;
-    // }
 
     void run() {
         int strCount = 6;
